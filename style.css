@@ -1,0 +1,393 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    display: flex;
+    gap: 20px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.image-palette {
+    width: 280px;
+    border-right: 1px solid #ccc;
+    padding-right: 20px;
+    max-height: 80vh; /* 화면 높이에 따라 스크롤 생기도록 */
+    overflow-y: auto;
+}
+
+.image-palette h2, .canvas-area h2 {
+    margin-top: 0;
+    color: #333;
+}
+.layer-section h3 {
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-size: 1.1em;
+    color: #555;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.image-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    /* min-height: 80px; */ /* 드롭 영역 확보용이었으므로, 디자인에 따라 조절하거나 제거 가능 */
+    /* padding: 10px; */ /* 디자인에 따라 조절 */
+    /* border: 1px solid #eee; */ /* 디자인에 따라 조절 */
+}
+
+/* 이미지 라이브러리 내의 이미지 (썸네일) 스타일 */
+.image-list img {
+    width: 80px;          /* 정사각형의 한 변의 길이 (원하는 크기로 조절) */
+    height: 80px;         /* 너비와 동일하게 설정하여 정사각형으로 만듦 */
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease; /* border-color 전환 효과 추가 */
+    object-fit: cover;    /* 이미지가 비율을 유지하면서 지정된 영역을 꽉 채우도록 함. 넘치는 부분은 잘림. */
+    /* object-position: center; */ /* 이미지를 중앙 정렬 (기본값, 필요시 사용) */
+    background-color: #f9f9f9; /* 이미지가 로드되기 전이나 투명한 부분의 배경색 (선택 사항) */
+}
+
+.image-list img:hover {
+    transform: scale(1.1);
+    border-color: #007bff; /* 호버 시 테두리 색상 변경 */
+}
+
+.canvas-area {
+    flex-grow: 1; /* 남은 공간을 모두 차지하도록 */
+}
+
+#comic-canvas {
+    border: 1px solid #000;
+    /* Fabric.js에서 생성된 컨트롤러가 잘 보이도록 배경을 약간 어둡게 하거나
+       캔버스 자체에 배경색을 줄 수 있습니다. */
+    /* background-color: #f9f9f9; */
+}
+
+button {
+    display: block;
+    width: calc(100% - 10px); /* padding 감안 */
+    padding: 10px;
+    margin-top: 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button#clear-canvas {
+    background-color: #dc3545;
+}
+button#clear-canvas:hover {
+    background-color: #c82333;
+}
+
+.layer-section h3 {
+    display: flex; /* 제목과 업로드 버튼을 같은 줄에 정렬 */
+    justify-content: space-between; /* 양쪽으로 분산 */
+    align-items: center; /* 수직 중앙 정렬 */
+}
+
+.image-upload {
+    font-size: 0.8em; /* 버튼 내 글자 크기 작게 */
+    /* 필요에 따라 추가적인 스타일링 */
+}
+
+button#remove-selected {
+    background-color: #ffc107; /* 주황색 계열 */
+    color: black;
+}
+button#remove-selected:hover {
+    background-color: #e0a800;
+}
+
+button#apply-comic-filter {
+    background-color: #6c757d; /* 회색 계열 */
+}
+button#apply-comic-filter:hover {
+    background-color: #5a6268;
+}
+
+button#revert-original-filter {
+    background-color: #17a2b8; /* 청록색 계열 */
+}
+button#revert-original-filter:hover {
+    background-color: #138496;
+}
+
+.tool-section {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.tool-section h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    color: #555;
+}
+
+.tool-section div {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.tool-section label {
+    width: 60px; /* 레이블 너비 조정 */
+    font-size: 0.9em;
+    margin-right: 5px;
+}
+
+.tool-section input[type="text"],
+.tool-section select,
+.tool-section input[type="number"] {
+    flex-grow: 1;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* padding과 border가 너비에 포함되도록 */
+}
+
+.tool-section input[type="color"] {
+    width: 100%; /* flex-grow 대신 너비 100%로 채우고, */
+    max-width: 60px; /* 최대 너비 제한 */
+    height: 30px;
+    padding: 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-left: auto; /* 오른쪽 정렬 효과 */
+}
+
+.image-list.drag-over {
+    border: 2px dashed #007bff; /* 파란색 점선 테두리 */
+    background-color: #e9f5ff; /* 연한 파란색 배경 */
+}
+
+/* 레이어 편집기 패널 스타일 */
+.layer-editor-panel {
+    width: 250px; /* 레이어 편집기 너비 */
+    border-left: 1px solid #ccc;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column; /* 내부 요소들을 세로로 정렬 */
+    max-height: calc(80vh - 40px); /* 팔레트와 유사하게 높이 제한 및 스크롤 (전체 컨테이너 높이에 따라 조절) */
+}
+
+.layer-editor-panel h2 {
+    margin-top: 0;
+    color: #333;
+    font-size: 1.2em; /* 제목 크기 조절 */
+    margin-bottom: 10px;
+}
+
+.layer-list-ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1; /* 남은 공간을 채우도록 */
+    overflow-y: auto; /* 내용이 많으면 스크롤 */
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+.layer-item {
+    display: flex;
+    align-items: center;
+    padding: 4px 6px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 0.9em;
+    min-height: 30px;
+}
+
+.layer-item button { /* 가시성, 잠금 버튼 공통 스타일 */
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1em; /* 아이콘 크기 */
+    padding: 0 1px; /* 좌우 패딩 약간 추가 */
+    color: #555;
+    line-height: 1; /* 아이콘 수직 정렬 도움 */
+    margin-top: 12px
+}
+
+.layer-item button:hover {
+    color: #000;
+}
+
+.layer-item:last-child {
+    border-bottom: none;
+}
+
+.layer-item:hover {
+    background-color: #f9f9f9;
+}
+
+.layer-item.selected { /* 선택된 레이어 아이템 스타일 */
+    background-color: #e0efff; /* 연한 파란색 배경 */
+    font-weight: bold;
+}
+
+.layer-type-icon {
+    margin-right: 6px;
+    font-size: 1em;
+    flex-shrink: 0; /* 아이콘 크기가 줄어들지 않도록 */
+}
+
+.layer-name {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: clip;
+    text-overflow: ellipsis;
+    margin-right: 5px;
+    padding: 2px 0; /* 약간의 상하 패딩으로 input과 높이 맞춤 용이 */
+    line-height: 1.2; /* input과 수직 정렬 도움 */
+}
+
+.layer-name-input {
+    flex-grow: 1; /* 이름 span과 동일하게 공간 차지 */
+    font-size: inherit; /* 부모 li의 폰트 크기 상속 */
+    padding: 1px 3px; /* 최소한의 패딩 */
+    margin: 0; /* 불필요한 마진 제거 */
+    border: 1px solid #007bff; /* 편집 중임을 나타내는 테두리 */
+    border-radius: 3px;
+    line-height: 1.2; /* 이름 span과 수직 정렬 도움 */
+    /* width: 100%; */ /* flex-grow가 있으므로 width 100%는 필요 없을 수 있음 */
+    box-sizing: border-box;
+}
+
+.layer-actions {
+    display: flex;      /* 버튼들을 가로로 배열 */
+    align-items: center;  /* 버튼들 수직 중앙 정렬 */
+    margin-left: auto;  /* 이 부분이 핵심! 왼쪽 마진을 자동으로 최대화하여 오른쪽으로 밀어냄 */
+    flex-shrink: 0;     /* 버튼 컨테이너 크기가 줄어들지 않도록 */
+}
+
+.layer-visible-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1em;
+    padding: 0 5px;
+    color: #555;
+}
+.layer-visible-toggle:hover {
+    color: #000;
+}
+.layer-item .layer-visible-toggle.hidden-eye { /* 눈 아이콘 숨김 상태 */
+    opacity: 0.5;
+    text-decoration: line-through; /* 예시 스타일 */
+}
+
+.layer-item button.layer-lock-toggle.locked {
+    /* opacity: 0.5; */ /* 기존, 가시성과 겹칠 수 있음 */
+    color: #999; /* 예: 잠금 아이콘 색상을 회색으로 변경 */
+    /* 또는 다른 시각적 표시 */
+}
+
+/* 가시성 버튼은 이미 있음, 필요시 .layer-visible-toggle 에 특정 스타일 추가 */
+
+.layer-lock-toggle.locked { /* 잠금 상태 아이콘 스타일 */
+    /* color: #cc0000; */ /* 예: 빨간색으로 강조 */
+    opacity: 0.6;
+}
+
+.layer-controls {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px; /* 버튼 사이 간격 */
+}
+
+.layer-controls button {
+    flex-grow: 1; /* 버튼들이 공간을 균등하게 차지하도록 */
+    padding: 8px;
+    font-size: 0.9em;
+    /* 기존 버튼 스타일이 적용되거나, 필요시 추가 스타일링 */
+}
+
+#eraser-tool-section button {
+    /* 기존 버튼 스타일 상속 또는 개별 스타일 */
+}
+#eraser-tool-section div { /* 두께 조절 UI 정렬 */
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+}
+#eraser-tool-section label {
+    margin-right: 5px;
+}
+#eraser-width-input {
+    flex-grow: 1;
+    margin-right: 5px;
+}
+#eraser-width-value {
+    min-width: 25px; /* 숫자 표시 공간 확보 */
+    text-align: right;
+}
+
+#brush-tool-section button {
+    margin-bottom: 10px; /* 버튼과 다음 옵션 사이 간격 */
+}
+#brush-tool-section button.active { /* 그리기 모드 활성화 시 버튼 스타일 */
+    background-color: #28a745; /* 예: 초록색 */
+}
+#brush-tool-section button.active:hover {
+    background-color: #218838;
+}
+
+#brush-tool-section div { /* 각 옵션 줄 (레이블 + 입력) */
+    /* 기존 .tool-section div 스타일 상속 */
+    margin-bottom: 8px; /* 옵션 간 간격 약간 줄임 */
+}
+#brush-tool-section label {
+    /* 기존 .tool-section label 스타일 상속 */
+    width: 70px; /* 레이블 너비 약간 늘림 (그림자 옵션 등 고려) */
+}
+
+#add-text-button {
+    width: 100%; /* 버튼 너비 조정 */
+    /* 기존 버튼 스타일이 적용되거나, 필요시 추가 스타일링 */
+}
+
+/* 선택된 텍스트가 없을 때 텍스트 도구 비활성화 느낌 (선택 사항) */
+#text-tools.disabled input,
+#text-tools.disabled select,
+#text-tools.disabled button:not(#add-text-button) { /* '텍스트 추가' 버튼은 항상 활성화 */
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+@font-face {
+    font-family: 'NanumSquare'; /* 또는 'NanumSquareR' 등 */
+    font-weight: 400; /* Regular */
+    src: url(...) format('woff');
+}
+@font-face {
+    font-family: 'NanumSquare'; /* 같은 이름에 다른 두께 */
+    font-weight: 700; /* Bold */
+    src: url(...) format('woff');
+}
+@font-face {
+    font-family: 'NanumSquareRound'; /* 만약 라운드 버전이 있다면 */
+    font-weight: 400;
+    src: url(...) format('woff');
+}

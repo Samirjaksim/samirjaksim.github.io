@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>만화 장면 제작기</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        @import url('https://cdn.rawgit.com/moonspam/NanumSquare/master/nanumsquare.css');
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js" integrity="sha512-P6uimDKoj1nnPSo2sPmgbZy99pPq9nHXhLwddOnLi1DC+fEM83FEUcHPRPifbx1rlRkdMinViaWyDfG45G9BuA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/webfont/1.4.10/webfont.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Poor+Story&family=Stylish&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="image-palette">
+            <h2>이미지 라이브러리</h2>
+            
+            <!-- 통합된 이미지 업로드 및 목록 섹션 -->
+            <div class="layer-section"> <!-- 이 클래스명은 유지하거나 일반적인 이름으로 변경 가능 -->
+                <h3>
+                    
+                    <input type="file" id="unified-image-upload" class="image-upload" accept="image/*" multiple>
+                    <!-- data-layer-target, data-layer-type 속성 제거 -->
+                </h3>
+                <div id="unified-image-list" class="image-list">
+                    <!-- 업로드된 모든 이미지가 여기에 표시됩니다 -->
+                    <!-- data-layer-type 속성 제거 -->
+                </div>
+            </div>
+
+            <div class="tool-section" id="text-tools">
+                <h3>텍스트 도구</h3>
+                <div>
+                    <label for="text-input">내용:</label>
+                    <input type="text" id="text-input" placeholder="텍스트를 입력하세요">
+                </div>
+                <div>
+                    <label for="font-family-select">폰트:</label>
+                    <select id="font-family-select">
+                        <option value="Arial">Arial</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Impact">Impact</option>
+                        <option value="Georgia">Georgia</option>
+                        <!-- 웹 폰트 예시 (위 <link> 태그에 추가된 폰트) -->
+                        <option value="'Nanum Pen Script', cursive">나눔펜 스크립트</option>
+                        <option value="NanumSquare">나눔스퀘어</option> 
+                        <option value="NanumSquareRound">나눔스퀘어 라운드</option>
+                        <option value="Nanum Gothic">나눔고딕</option>
+                        <option value="'Gaegu', cursive">개구</option>
+                        <option value="'Poor Story', cursive">Poor Story</option>
+                        <option value="'Stylish', sans-serif">Stylish</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="font-size-input">크기:</label>
+                    <input type="number" id="font-size-input" value="40" min="8" max="300">
+                </div>
+                <div>
+                    <label for="text-color-input">색상:</label>
+                    <input type="color" id="text-color-input" value="#000000">
+                </div>
+                <button id="add-text-button">텍스트 추가</button>
+            </div>
+        
+            <div class="tool-section" id="text-tools">
+                <h3>프레임 도구</h3>
+                <button id="start-polygon-frame-button">프레임 그리기</button>
+                <button id="finish-polygon-frame-button" style="display:none;">프레임 그리기 완료</button>
+            </div>
+
+            <div class="tool-section" id="brush-tool-section">
+    <h3>브러시 도구</h3>
+    <button id="toggle-draw-mode-button">그리기 모드 켜기</button>
+    <div>
+        <label for="brush-type-select">종류:</label>
+        <select id="brush-type-select">
+            <option value="PencilBrush">연필</option>
+            <option value="CircleBrush">원형</option>
+            <option value="SprayBrush">스프레이</option>
+            <!-- 다른 브러시 타입 추가 가능 -->
+        </select>
+    </div>
+    <div>
+        <label for="brush-color-input">색상:</label>
+        <input type="color" id="brush-color-input" value="#000000">
+    </div>
+    <div>
+        <label for="brush-width-input">두께:</label>
+        <input type="range" id="brush-width-input" min="1" max="100" value="5">
+        <span id="brush-width-value">5</span>px
+    </div>
+</div>
+
+            <h3>필터 도구</h3>
+            <button id="apply-comic-filter">흑백 만화 필터</button>
+            <button id="revert-original-filter">필터 해제</button>
+
+            <h3>캔버스 도구</h3>
+            <button id="clear-canvas">캔버스 비우기</button>
+            <button id="export-image">이미지 저장</button>
+        </div>
+
+        <div class="canvas-area">
+            <h2>캔버스</h2>
+            <canvas id="comic-canvas" width="800" height="600"></canvas>
+        </div>
+
+        <!-- 새로운 레이어 편집기 패널 -->
+        <div class="layer-editor-panel">
+            <h2>레이어</h2>
+            <ul id="layer-list" class="layer-list-ul">
+                <!-- index.html 레이어 아이템 예시 부분 수정 -->
+            </ul>
+            <div class="layer-controls">
+                <button id="layer-up-button" title="위로">🔼</button>
+                <button id="layer-down-button" title="아래로">🔽</button>
+                <button id="layer-delete-button" title="삭제">🗑️</button>
+            </div>
+        </div>
+        <!-- 레이어 편집기 패널 끝 -->
+
+    </div>
+
+     <!-- (선택사항) 캔버스 우측에 레이어 편집기를 위한 공간 예시 -->
+        <!-- <div class="layer-editor-panel"> -->
+        <!-- <h2>레이어 편집기</h2> -->
+        <!-- 여기에 레이어 목록 및 편집 UI가 들어갈 예정 -->
+        <!-- </div> -->
+    </div>
+
+    <script src="js/main.js" type="module"></script> </body>
+</body>
+</html>
