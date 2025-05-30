@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DJMAX 레벨 업다운 게임</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>DJMAX 레벨 업다운 게임</h1>
+
+        <div id="mode-selection">
+            <h2>플레이할 버튼 모드를 선택하세요.</h2>
+            <div class="mode-buttons">
+                <button class="mode-button" data-mode="4B">4B</button>
+                <button class="mode-button" data-mode="5B">5B</button>
+                <button class="mode-button" data-mode="6B">6B</button>
+                <button class="mode-button" data-mode="8B">8B</button>
+                <button class="mode-button" data-mode="ALL">ALL</button>
+            </div>
+
+            <div class="options-area">
+                <input type="checkbox" id="sc-only-checkbox">
+                <label for="sc-only-checkbox">SC 패턴만 나오게 해주세요!</label>
+            </div>
+
+            <div class="options-area">
+                <input type="checkbox" id="hard-mode-checkbox">
+                <label for="hard-mode-checkbox">하드 모드 (비슷한 난이도만 출현합니다.)</label>
+            </div>
+
+            <div id="advanced-settings-wrapper">
+                <button id="toggle-advanced-settings" type="button">고급 설정 펼치기</button>
+                <div id="advanced-settings-content" class="hidden"> <!-- 기본 숨김 -->
+                    <div class="setting-group">
+                        <h4>난이도 범위 (서열표 기준)</h4>
+                        <label for="level-min-select">최소:</label>
+                        <select id="level-min-select" name="level-min-select">
+                            <option value="">전체</option>
+                            <!-- 옵션은 JS로 채울 예정 -->
+                        </select>
+                        <label for="level-max-select">최대:</label>
+                        <select id="level-max-select" name="level-max-select">
+                            <option value="">전체</option>
+                            <!-- 옵션은 JS로 채울 예정 -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="score-board" class="hidden">
+            점수: <span id="score">0</span>
+        </div>
+
+        <div id="game-area" class="hidden">
+            <div class="card-container">
+                <div id="left-card" class="card">
+                    <!-- 앨범 자켓 이미지 추가 -->
+                    <img src="" alt="앨범 자켓" class="album-jacket"> 
+                    <p class="song-title">곡명</p>
+                    <p class="pattern-info">패턴 정보</p>
+                    <p class="level-info">표기 레벨: <span class="level-value">?</span></p>
+                    <p class="floor-info">서열표 난이도: <span class="floor-value">?</span></p>
+                    <p class="composer-info">작곡가: <span class="composer-value">?</span></p>
+                    <p class="dlc-info">DLC: <span class="dlc-value">?</span></p>
+                </div>
+            </div>
+
+            <div class="vs">VS</div>
+
+            <div class="card-container">
+                <div id="right-card" class="card">
+                    <!-- 앨범 자켓 이미지 추가 -->
+                    <img src="" alt="앨범 자켓" class="album-jacket">
+                    <p class="song-title">곡명</p>
+                    <p class="pattern-info">패턴 정보</p>
+                    <p class="level-info">표기 레벨: <span class="level-value">? (숨김)</span></p>
+                    <p class="floor-info">서열표 난이도: <span class="floor-value">? (숨김)</span></p>
+                    <p class="composer-info">작곡가: <span class="composer-value">?</span></p>
+                    <p class="dlc-info">DLC: <span class="dlc-value">?</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div id="controls" class="hidden">
+            <button id="down-button">낮다 (DOWN)</button>
+            <button id="up-button">높다 (UP)</button>
+        </div>
+
+        <div id="current-mode-display" class="hidden">
+            현재 모드: <span id="current-mode-text"></span>
+        </div>
+
+        <div id="game-over-message" class="hidden">
+            <h2>게임 오버!</h2>
+            <p>최종 점수: <span id="final-score">0</span></p>
+            <p id="answer-reveal"></p>
+            <button id="restart-button">모드 선택으로</button>
+        </div>
+        <div id="loading-message">
+            데이터 로딩 중... 잠시만 기다려주세요.
+        </div>
+        <div id="error-message" class="hidden">
+        </div>
+
+        <footer id="page-footer">
+        <p>※ 본 사이트는 게임 DJMAX RESPECT V의 팬사이트이며, 사이트 내 사용된 모든 게임 컨텐츠(이미지, 문구 등)의 저작권은 NEOWIZ 사에 있습니다.</p>
+        </footer>
+    </div>
+
+    <script src="js/constants.js"></script>
+    <script src="js/dom.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

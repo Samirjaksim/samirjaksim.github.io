@@ -1,0 +1,403 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    margin: 0;
+    padding: 10px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.container {
+    background-color: #34495e; /* 컨테이너 배경 */
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 900px; /* 최대 너비 제한 */
+}
+
+h1 {
+    color: #e74c3c; /* 타이틀 색상 */
+    margin-bottom: 25px;
+}
+
+#current-mode-display {
+    font-size: 1.1em;
+    color: #f39c12; /* 주황색 계열 */
+    margin-top: 20px;    /* 게임 영역과의 위쪽 간격 */
+    margin-bottom: 15px;
+    padding: 8px;
+    background-color: rgba(0,0,0,0.1); /* 약간의 배경 */
+    border-radius: 4px;
+}
+#current-mode-display.hidden { /* 이 클래스는 이미 정의되어 있음 */
+    display: none !important;
+}
+#current-mode-text {
+    font-weight: bold;
+}
+
+#mode-selection {
+    margin-bottom: 30px;
+}
+
+#mode-selection h2 {
+    color: #f1c40f;
+    margin-bottom: 15px;
+}
+
+.mode-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* 버튼 사이 간격 */
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* 작은 화면에서 버튼 줄바꿈 */
+}
+
+.mode-button {
+    padding: 10px 20px;
+    font-size: 1.1em;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #3498db;
+    color: white;
+    transition: background-color 0.3s ease;
+    min-width: 60px;
+}
+
+.mode-button:hover {
+    background-color: #2980b9;
+}
+
+.mode-button[data-mode="ALL"] {
+    background-color: #2ecc71; /* ALL 버튼 색상 변경 */
+}
+.mode-button[data-mode="ALL"]:hover {
+    background-color: #27ae60;
+}
+
+.options-area {
+    margin-top: 15px;
+    /* margin-bottom: 15px; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.options-area input[type="checkbox"] {
+    margin-right: 5px;
+    /* 필요하다면 체크박스 크기 등 추가 스타일링 */
+    transform: scale(1.2); /* 약간 크게 */
+}
+
+.options-area label {
+    font-size: 1em;
+    color: #ecf0f1; /* 밝은 글씨 */
+    cursor: pointer;
+}
+
+#advanced-settings-wrapper {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center; /* 토글 버튼 가운데 정렬 */
+}
+
+#toggle-advanced-settings {
+    padding: 8px 15px;
+    font-size: 0.95em;
+    background-color: #5dade2;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 10px; /* 내용과의 간격 */
+    transition: background-color 0.3s ease;
+}
+#toggle-advanced-settings:hover {
+    background-color: #3498db;
+}
+
+/* 고급 설정 내용 스타일 */
+#advanced-settings-content {
+    padding: 15px;
+    border: 1px solid #566573;
+    border-radius: 6px;
+    background-color: rgba(44, 62, 80, 0.7); /* 약간 어두운 배경 */
+    text-align: left; /* 내부 요소는 왼쪽 정렬 */
+}
+
+#advanced-settings-content.hidden {
+    display: none;
+}
+
+.setting-group {
+    margin-bottom: 15px;
+}
+.setting-group:last-child {
+    margin-bottom: 0;
+}
+
+.setting-group h4 {
+    font-size: 1em;
+    color: #aed6f1; /* 밝은 파란색 계열 */
+    margin-top: 0;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #566573; /* 구분선 */
+    padding-bottom: 5px;
+}
+
+.setting-group label {
+    margin-right: 5px;
+    font-size: 0.95em;
+    color: #bdc3c7; /* 회색 계열 */
+}
+.setting-group input[type="number"], /* 이전 스타일 - 이제 사용 안 함 */
+.setting-group select { /* select 스타일 추가 */
+    width: 85px; /* 너비 조절 (기존 number input과 비슷하게) */
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid #7f8c8d;
+    background-color: #dde0e1;
+    color: #2c3e50;
+    margin-right: 10px;
+    text-align: center; /* select 내부 텍스트도 가운데 정렬 (브라우저 기본값 따를 수 있음) */
+    -webkit-appearance: none; /* 브라우저 기본 화살표 제거 (선택적) */
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.4-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E'); /* 커스텀 화살표 (선택적) */
+    background-repeat: no-repeat;
+    background-position: right .7em top 50%, 0 0;
+    background-size: .65em auto, 100%;
+    cursor: pointer;
+}
+.setting-group select:focus {
+    outline: 2px solid #5dade2; /* 포커스 시 테두리 */
+}
+.setting-group input[type="checkbox"] {
+    margin-right: 5px;
+    transform: scale(1.15); /* 약간 크게 */
+    vertical-align: middle;
+}
+.setting-group label[for="hard-mode-checkbox"], 
+.setting-group label[for="sc-only-checkbox"] { /* 체크박스 라벨에도 적용 */
+    vertical-align: middle;
+}
+
+.rule-reminder {
+    font-size: 0.9em;
+    color: #bdc3c7;
+    margin-top: 5px;
+}
+
+/* 점수판, 게임 영역, 컨트롤 버튼 초기 숨김용 클래스 */
+.hidden {
+    display: none !important; /* important를 사용하여 확실히 숨김 */
+}
+
+#score-board {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    color: #f1c40f; /* 점수 색상 */
+}
+
+#game-area {
+    display: flex;
+    justify-content: space-around;
+    align-items: stretch; /* 카드의 높이를 같게 */
+    margin: 20px 0;
+    gap: 10px; /* 카드 사이 간격 */
+}
+
+.card-container {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.card {
+    border: 2px solid #7f8c8d;
+    padding: 15px;
+    margin-top: 10px;
+    border-radius: 8px;
+    background-color: #4a637a;
+    width: 100%; 
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* 내용물 정렬을 위해 유지 */
+    min-height: 280px; /* 이미지 공간 확보를 위해 최소 높이 조정 가능 */
+    align-items: center; /* 내부 요소 가운데 정렬 (이미지 등) */
+}
+
+.album-jacket {
+    width: 100%; /* 부모 요소(카드) 너비에 맞춤 */
+    max-width: 100px; /* 최대 너비 제한 (원하는 크기로 조절) */
+    height: auto; /* 이미지 비율 유지 */
+    /* height: 150px;  고정 높이를 원하면 이렇게 하고 object-fit 사용 */
+    /* object-fit: cover; 고정 높이/너비일 때 이미지 잘림 방식 */
+    border-radius: 6px; /* 모서리 둥글게 */
+    margin-bottom: 10px; /* 제목과의 간격 */
+    background-color: #555; /* 이미지 로딩 전/실패 시 배경색 */
+    display: block; /* 이미지가 없을 때도 공간 차지 않도록 초기엔 none, 로드 성공 시 block으로 변경 가능 */
+}
+
+.card p {
+    margin: 8px 0;
+    word-break: keep-all; 
+}
+
+.song-title { 
+    font-weight: bold; 
+    font-size: 1.3em; 
+    color: #3498db;
+    margin-top: 0; /* 이미지 바로 아래 붙도록 */
+}
+
+.pattern-info {
+    font-style: italic;
+    color: #95a5a6; /* 패턴 정보 색상 */
+}
+
+.floor-info {
+    font-weight: bold;
+}
+.floor-info .floor-value {
+    color: #2ecc71; /* 레벨/플로어 값 색상 */
+}
+
+
+.composer-info .composer-value, .dlc-info .dlc-value {
+    color: #bdc3c7;
+    font-size: 0.9em;
+}
+
+.vs {
+    font-size: 2.5em;
+    font-weight: bold;
+    align-self: center;
+    color: #e67e22; /* VS 텍스트 색상 */
+    padding: 0 10px;
+}
+
+#controls button {
+    padding: 12px 25px;
+    font-size: 1.1em;
+    margin: 0 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+#down-button {
+    background-color: #2980b9; /* 파란색 계열 */
+}
+#down-button:hover {
+    background-color: #3498db;
+}
+
+#up-button {
+    background-color: #c0392b; /* 빨간색 계열 */
+}
+#up-button:hover {
+    background-color: #e74c3c;
+}
+
+
+#game-over-message {
+    margin-top: 25px;
+    padding: 20px;
+    background-color: #c0392b; /* 게임 오버 배경 */
+    border: 1px solid #e74c3c;
+    border-radius: 8px;
+}
+
+#game-over-message.hidden {
+    display: none;
+}
+
+#game-over-message h2 {
+    color: white;
+}
+#game-over-message p {
+    color: #ecf0f1;
+}
+
+
+#restart-button {
+    background-color: #27ae60; /* 초록색 계열 */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-top: 10px;
+}
+#restart-button:hover {
+    background-color: #2ecc71;
+}
+
+#loading-message {
+    font-size: 1.5em;
+    color: #f1c40f;
+    margin-top: 30px;
+}
+
+#page-footer {
+    width: 100%;
+    text-align: center;
+    padding: 15px 0; /* 위아래 여백 */
+    margin-top: 30px; /* 위 컨텐츠와의 간격 */
+    font-size: 0.75em; /* 글자 크기 작게 */
+    color: #7f8c8d; /* 눈에 덜 띄는 회색 계열 */
+    background-color: #2c3e50; /* body 배경색과 유사하게 또는 약간 다르게 */
+    border-top: 1px solid #34495e; /* 위쪽 경계선 (선택 사항) */
+}
+
+#page-footer p {
+    margin: 0;
+    padding: 0 10px; /* 좌우 여백 (내용이 너무 길어질 경우 줄바꿈 위함) */
+    line-height: 1.4; /* 줄 간격 */
+}
+
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.8em;
+    }
+    #game-area {
+        flex-direction: column;
+        align-items: center;
+    }
+    .card-container {
+        width: 90%;
+        margin-bottom: 20px;
+    }
+    .vs {
+        margin: 15px 0;
+    }
+    #controls {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    #controls button {
+        width: 100%;
+        margin: 5px 0;
+    }
+    .card {
+        min-height: auto; /* 모바일에서는 최소 높이 자동 조정 */
+    }
+    .album-jacket {
+        max-width: 75px; /* 모바일에서 자켓 크기 줄이기 */
+    }
+}
