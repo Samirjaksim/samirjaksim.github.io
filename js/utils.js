@@ -1,6 +1,22 @@
 // js/utils.js
 import { canvas } from './canvasSetup.js';
 
+export function debounce(func, wait, immediate) {
+    let timeout;
+    return function() {
+        const context = this;
+        const args = arguments;
+        const later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        const callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+}
+
 export function bringAllTextToFront() {
     canvas.getObjects().forEach(obj => {
         if (obj.isType('i-text') || obj.isType('textbox')) {

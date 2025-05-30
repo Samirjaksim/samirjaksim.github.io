@@ -5,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>만화 장면 제작기</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        @import url('https://cdn.rawgit.com/moonspam/NanumSquare/master/nanumsquare.css');
-    </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js" integrity="sha512-P6uimDKoj1nnPSo2sPmgbZy99pPq9nHXhLwddOnLi1DC+fEM83FEUcHPRPifbx1rlRkdMinViaWyDfG45G9BuA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/webfont/1.4.10/webfont.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Poor+Story&family=Stylish&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Gaegu&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
@@ -24,11 +21,12 @@
             <div class="layer-section"> <!-- 이 클래스명은 유지하거나 일반적인 이름으로 변경 가능 -->
                 <h3>
                     
-                    <input type="file" id="unified-image-upload" class="image-upload" accept="image/*" multiple>
+                    <input type="file" id="unified-image-upload" class="image-upload" accept="image/*" multiple title="컴퓨터에서 이미지 파일 선택">
                     <!-- data-layer-target, data-layer-type 속성 제거 -->
                 </h3>
                 <div id="unified-image-list" class="image-list">
                     <!-- 업로드된 모든 이미지가 여기에 표시됩니다 -->
+                    <p class="empty-library-message">이미지 업로드 또는<br>이 곳으로 파일을 끌어오세요.</p>
                     <!-- data-layer-type 속성 제거 -->
                 </div>
             </div>
@@ -43,14 +41,9 @@
                     <label for="font-family-select">폰트:</label>
                     <select id="font-family-select">
                         <option value="Arial">Arial</option>
-                        <option value="Times New Roman">Times New Roman</option>
-                        <option value="Courier New">Courier New</option>
-                        <option value="Impact">Impact</option>
-                        <option value="Georgia">Georgia</option>
+                        <option value="맑은 고딕">맑은 고딕</option>
                         <!-- 웹 폰트 예시 (위 <link> 태그에 추가된 폰트) -->
                         <option value="'Nanum Pen Script', cursive">나눔펜 스크립트</option>
-                        <option value="NanumSquare">나눔스퀘어</option> 
-                        <option value="NanumSquareRound">나눔스퀘어 라운드</option>
                         <option value="Nanum Gothic">나눔고딕</option>
                         <option value="'Gaegu', cursive">개구</option>
                         <option value="'Poor Story', cursive">Poor Story</option>
@@ -69,14 +62,14 @@
             </div>
         
             <div class="tool-section" id="text-tools">
-                <h3>프레임 도구</h3>
-                <button id="start-polygon-frame-button">프레임 그리기</button>
-                <button id="finish-polygon-frame-button" style="display:none;">프레임 그리기 완료</button>
+                <h3>선 도구</h3>
+                <button id="start-polygon-frame-button">선 그리기</button>
+                <button id="finish-polygon-frame-button" style="display:none;">선 그리기 완료</button>
             </div>
 
             <div class="tool-section" id="brush-tool-section">
     <h3>브러시 도구</h3>
-    <button id="toggle-draw-mode-button">그리기 모드 켜기</button>
+    <button id="toggle-draw-mode-button">브러시 그리기</button>
     <div>
         <label for="brush-type-select">종류:</label>
         <select id="brush-type-select">
@@ -109,6 +102,10 @@
         <div class="canvas-area">
             <h2>캔버스</h2>
             <canvas id="comic-canvas" width="800" height="600"></canvas>
+            <div class="canvas-controls-extra">
+                <button id="undo-button" title="실행 취소 (Ctrl+Z)">↩️ 실행 취소</button>
+                <button id="redo-button" title="다시 실행 (Ctrl+Y)">↪️ 다시 실행</button>
+            </div>
         </div>
 
         <!-- 새로운 레이어 편집기 패널 -->

@@ -1,5 +1,6 @@
 // js/layerEditor.js
 import { canvas } from './canvasSetup.js';
+import { saveCanvasState } from './historyHandler.js'; // import 추가
 
 const layerListUl = document.getElementById('layer-list');
 
@@ -14,7 +15,7 @@ function getObjectTypeIcon(object) {
     if (object.isType('image')) return '🖼️';
     if (object.isType('i-text') || object.isType('textbox')) return '📝';
     if (object.isType('rect') && object.stroke) return '⬜'; // 테두리 있는 사각형 (프레임)
-    if (object.isType('polygon') && object.stroke) return '💠'; // 테두리 있는 다각형 (프레임)
+    if (object.isType('polygon') && object.stroke) return '━'; // 테두리 있는 다각형 (프레임)
     if (object.isType('rect') && !object.stroke && object.fill && object.fill !== 'rgba(0,0,0,0)') return '🟩'; // 채워진 사각형
     return '●'; // 기타 기본 도형
 }
@@ -24,7 +25,7 @@ function getObjectName(object) {
     if (object.isType('image')) return '이미지';
     if (object.isType('i-text') || object.isType('textbox')) return '텍스트'
     if (object.isType('rect') && object.stroke) return '사각 프레임';
-    if (object.isType('polygon') && object.stroke) return '프레임';
+    if (object.isType('polygon') && object.stroke) return '선';
     if (object.isType('rect') && !object.stroke && object.fill && object.fill !== 'rgba(0,0,0,0)') return '채워진 사각형';
     return object.type ? object.type.charAt(0).toUpperCase() + object.type.slice(1) : '객체';
 }
@@ -132,6 +133,7 @@ function handleVisibilityToggle(event) {
         button.classList.toggle('hidden-eye', !fabricObject.visible);
         listItem.style.opacity = fabricObject.visible ? 1 : 0.6;
         canvas.renderAll();
+        saveCanvasState(); // <<--- 레이어 순서 변경은 명시적 상태 변경이므로 저장
     }
 }
 
@@ -159,6 +161,7 @@ function handleLockToggle(event) {
         }
         canvas.renderAll();
         // console.log(`Object ${objectId} selectable: ${fabricObject.selectable}`);
+        saveCanvasState(); // <<--- 레이어 순서 변경은 명시적 상태 변경이므로 저장
     }
 }
 

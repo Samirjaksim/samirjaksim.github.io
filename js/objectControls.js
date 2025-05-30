@@ -5,6 +5,7 @@ import { updateTextToolUI } from './textTool.js';
 // removeLayerItem은 object:removed 이벤트에서 처리되므로 직접 import 필요 없음
 // rerenderLayerList는 레이어 순서 변경 시 필요
 import { rerenderLayerList, updateSelectedLayerItem } from './layerEditor.js';
+import { saveCanvasState } from './historyHandler.js'; // 상태 저장을 위해 import
 
 // 버튼 DOM 요소 참조
 const removeSelectedButton = document.getElementById('remove-selected'); // 기존 선택 객체 삭제 버튼
@@ -169,6 +170,7 @@ export function initializeObjectControls() {
                 rerenderLayerList(); // 레이어 목록 UI 전체 업데이트
                 // updateSelectedLayerItem(activeObject.id); // rerenderLayerList 후 선택 유지
                 canvas.renderAll();
+                saveCanvasState(); // <<--- 레이어 순서 변경은 명시적 상태 변경이므로 저장
             } else {
                 alert("순서를 변경할 객체를 레이어 목록 또는 캔버스에서 선택해주세요.");
             }
@@ -193,6 +195,7 @@ export function initializeObjectControls() {
                 rerenderLayerList(); // 레이어 목록 UI 전체 업데이트
                 // updateSelectedLayerItem(activeObject.id); // rerenderLayerList 후 선택 유지
                 canvas.renderAll();
+                saveCanvasState(); // <<--- 레이어 순서 변경은 명시적 상태 변경이므로 저장
             } else {
                 alert("순서를 변경할 객체를 레이어 목록 또는 캔버스에서 선택해주세요.");
             }

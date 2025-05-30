@@ -1,17 +1,21 @@
 // js/frameTool.js
 import { canvas } from './canvasSetup.js';
-import { bringAllTextToFront } from './utils.js';
+import { setVolatileState, saveCanvasState } from './historyHandler.js'; // 히스토리 제어 함수
+import { setActiveDrawingTool, getActiveDrawingTool } from './toolStateManager.js'; // 전역 도구 상태 관리
 
+// DOM 요소 참조
 const addRectFrameButton = document.getElementById('add-rect-frame-button');
 const startPolygonFrameButton = document.getElementById('start-polygon-frame-button');
 const finishPolygonFrameButton = document.getElementById('finish-polygon-frame-button');
 
-let polygonPoints = []; // 현재 그려지고 있는 폴리곤의 점들을 저장하는 배열
-let isDrawingPolygon = false; // 다각형 그리기 모드 플래그
-let tempLine = null; // 다음 점으로 이어지는 임시 선 (미리보기용)
-let tempPointsCircle = []; // 찍은 점들을 표시할 작은 원들
+// 다각형 그리기를 위한 상태 변수
+let polygonPoints = [];           // 사용자가 찍은 폴리곤 점들의 좌표 배열
+let isDrawingPolygon = false;     // 현재 다각형 그리기 모드 활성화 여부
+let tempLine = null;              // 마지막으로 찍은 점에서 마우스 커서까지 이어지는 임시 미리보기 선
+let tempPointsCircle = [];        // 사용자가 찍은 점들을 시각적으로 표시하는 원 객체 배열
+let tempPolylineSegments = [];    // 사용자가 찍은 점들을 순서대로 이어 보여주는 임시 선분 객체 배열
 
-// 임시로 찍은 점들을 시각적으로 표시하는 원 스타일
+// 임시로 찍은 점(원)에 적용할 스타일
 const pointCircleStyle = {
     radius: 5,
     fill: 'rgba(100, 100, 255, 0.7)',
@@ -20,170 +24,224 @@ const pointCircleStyle = {
     selectable: false,
     hasControls: false,
     hasBorders: false,
-    evented: false, // 이벤트 받지 않도록
+    evented: false,         // 마우스 이벤트 받지 않음
+    isTemporary: true,      // 임시 객체임을 나타내는 플래그 (레이어 목록/히스토리 제외용)
     originX: 'center',
     originY: 'center'
 };
 
-function clearTemporaryPolygonElements() {
+// ESC 키 이벤트 리스너 참조 (해제를 위해)
+let handleEscKeyForPolygonInstance = null;
+
+/**
+ * 다각형 그리기에 사용된 모든 임시 시각적 요소들을 캔버스에서 제거하고 관련 배열을 초기화합니다.
+ */
+function clearTemporaryDrawingElements() {
     if (tempLine) {
         canvas.remove(tempLine);
         tempLine = null;
     }
     tempPointsCircle.forEach(circle => canvas.remove(circle));
     tempPointsCircle = [];
-    polygonPoints = []; // 점 목록도 초기화
+    tempPolylineSegments.forEach(segment => canvas.remove(segment));
+    tempPolylineSegments = [];
+    // polygonPoints 배열은 그리기 시작 시, 또는 완료/취소 시 명시적으로 초기화합니다.
 }
 
-function finishDrawingPolygon() {
-    if (polygonPoints.length < 3) {
-        alert("최소 3개 이상의 점을 찍어야 다각형을 만들 수 있습니다.");
-        clearTemporaryPolygonElements(); // 임시 요소들 정리
-        isDrawingPolygon = false;
-        startPolygonFrameButton.style.display = 'inline-block';
-        finishPolygonFrameButton.style.display = 'none';
-        canvas.defaultCursor = 'default';
-        canvas.off('mouse:down', handlePolygonMouseDown); // 이벤트 리스너 해제
-        canvas.off('mouse:move', handlePolygonMouseMove);
-        canvas.off('mouse:dblclick', handlePolygonDoubleClick);
+/**
+ * 다각형 그리기를 완료하고 최종 폴리곤 객체를 캔버스에 추가합니다.
+ */
+function completePolygonDrawing() {
+    setVolatileState(false); // 중요한 상태 변경 구간으로 진입 (또는 휘발성 상태 종료)
+
+    if (polygonPoints.length < 2) {
+        alert("최소 2개 이상의 점을 찍어야 선을 그릴 수 있습니다.");
+        cancelPolygonDrawing(true); // 실패 시, 전역 도구 상태까지 리셋하며 취소
         return;
     }
 
-    const polygonFrame = new fabric.Polygon(polygonPoints, {
-        fill: 'rgba(0,0,0,0)',
+    const finalPolygonPoints = [...polygonPoints]; // 현재까지 찍힌 점들로 폴리곤 생성
+
+    // 최종 폴리곤 생성 전에 모든 임시 '캔버스 객체'들만 제거
+    if (tempLine) canvas.remove(tempLine); tempLine = null;
+    tempPointsCircle.forEach(circle => canvas.remove(circle)); tempPointsCircle = [];
+    tempPolylineSegments.forEach(segment => canvas.remove(segment)); tempPolylineSegments = [];
+
+    const polygonFrame = new fabric.Polygon(finalPolygonPoints, {
+        fill: 'rgba(0,0,0,0)', // 프레임 내부는 투명
         stroke: 'black',
         strokeWidth: 3,
-        // objectCaching: false, // 폴리곤 편집 시 성능 문제 있으면 고려
+        id: 'poly_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        customName: '선',
+        // isTemporary: false, // 최종 객체이므로 이 플래그는 없음 (기본값)
     });
 
-    canvas.add(polygonFrame);
-    canvas.setActiveObject(polygonFrame);
-    bringAllTextToFront();
+    canvas.add(polygonFrame); // 이 호출로 main.js의 'object:added' 이벤트가 발생하여
+                            // 레이어 목록 추가, 히스토리 저장 등이 처리됨.
+    canvas.setActiveObject(polygonFrame); // 새로 추가된 프레임 선택
 
-    // 그리기 모드 종료 및 정리
-    clearTemporaryPolygonElements();
-    isDrawingPolygon = false;
-    startPolygonFrameButton.style.display = 'inline-block';
-    finishPolygonFrameButton.style.display = 'none';
+    // 그리기 모드 정상 종료를 위한 정리 작업
+    polygonPoints = []; // 점 목록 초기화
+    isDrawingPolygon = false; // 그리기 모드 플래그 해제
+    // finishPolygonFrameButton.style.display = 'none'; // toolStateManager가 버튼 display 제어
     canvas.defaultCursor = 'default';
+    setActiveDrawingTool(null); // 전역 그리기 도구 상태 해제 (버튼 UI 업데이트 유발)
 
-    // 이벤트 리스너 해제
+    // 사용된 모든 이벤트 리스너 해제
     canvas.off('mouse:down', handlePolygonMouseDown);
     canvas.off('mouse:move', handlePolygonMouseMove);
     canvas.off('mouse:dblclick', handlePolygonDoubleClick);
-    console.log('Polygon frame created:', polygonFrame);
+    if (handleEscKeyForPolygonInstance) {
+        document.removeEventListener('keydown', handleEscKeyForPolygonInstance);
+        handleEscKeyForPolygonInstance = null;
+    }
+    // console.log('Polygon frame created:', polygonFrame.id);
 }
 
+/**
+ * 다각형 그리기를 취소하고 모든 관련 상태와 임시 요소들을 정리합니다.
+ * @param {boolean} resetGlobalToolState - 전역 도구 상태(activeDrawingTool)도 리셋할지 여부
+ */
+function cancelPolygonDrawing(resetGlobalToolState = true) {
+    setVolatileState(false); // 휘발성 상태 해제 (어떤 경우든)
+    clearTemporaryDrawingElements(); // 모든 임시 시각적 요소 제거
+    polygonPoints = [];          // 점 목록 확실히 초기화
+    isDrawingPolygon = false;    // 그리기 모드 플래그 해제
+
+    // finishPolygonFrameButton.style.display = 'none'; // toolStateManager가 버튼 display 제어
+    canvas.defaultCursor = 'default'; // 커서 기본값으로 복원
+    
+    // 등록된 캔버스 이벤트 리스너 해제
+    canvas.off('mouse:down', handlePolygonMouseDown);
+    canvas.off('mouse:move', handlePolygonMouseMove);
+    canvas.off('mouse:dblclick', handlePolygonDoubleClick);
+    // 등록된 ESC 키 이벤트 리스너 해제
+    if (handleEscKeyForPolygonInstance) {
+        document.removeEventListener('keydown', handleEscKeyForPolygonInstance);
+        handleEscKeyForPolygonInstance = null;
+    }
+    
+    if (resetGlobalToolState) {
+        setActiveDrawingTool(null); // 전역 그리기 도구 상태 해제 (버튼 UI 업데이트 유발)
+    } else {
+        // 전역 상태 변경 없이 내부 UI만 정리해야 할 경우 (현재는 이 경우가 없음)
+        // toolStateManager.updateAllToolButtonsState(); // 강제로 버튼 상태만 업데이트
+    }
+    // console.log('Polygon drawing cancelled.');
+}
+
+/**
+ * 다각형 그리기 모드 중 마우스 다운 이벤트 핸들러 (점 찍기)
+ */
 function handlePolygonMouseDown(options) {
     if (!isDrawingPolygon) return;
-
     const pointer = canvas.getPointer(options.e);
     polygonPoints.push({ x: pointer.x, y: pointer.y });
 
-    // 찍은 점 시각적으로 표시
-    const pointCircle = new fabric.Circle({
-        ...pointCircleStyle,
-        left: pointer.x,
-        top: pointer.y,
-    });
-    canvas.add(pointCircle);
+    // 찍은 점 시각화 (isTemporary: true 스타일 객체 사용)
+    const pointCircle = new fabric.Circle({ ...pointCircleStyle, left: pointer.x, top: pointer.y });
+    canvas.add(pointCircle); // main.js의 object:added에서 isTemporary 플래그로 필터링됨
     tempPointsCircle.push(pointCircle);
 
-    // 임시 선 업데이트 (첫 점 이후부터)
+    // 이전 점과 현재 점을 잇는 임시 선분 추가
     if (polygonPoints.length > 1) {
-        if (tempLine) canvas.remove(tempLine); // 이전 임시선 제거
-        // 이전 점에서 현재 점까지의 선을 그림 (실제 폴리곤의 일부가 될 선)
-        const line = new fabric.Line(
-            [
-                polygonPoints[polygonPoints.length - 2].x, polygonPoints[polygonPoints.length - 2].y,
-                pointer.x, pointer.y
-            ], {
-            stroke: 'rgba(0, 0, 0, 0.5)', // 임시 선 스타일
-            strokeWidth: 2,
-            selectable: false, evented: false,
-        });
-        // canvas.add(line); // 이 선은 최종 폴리곤에 포함되므로 미리 추가할 필요 없음
-                            // 대신, mouse:move에서 마지막 점과 커서 사이의 선을 tempLine으로 그림
+        const prevPoint = polygonPoints[polygonPoints.length - 2];
+        const segmentLine = new fabric.Line(
+            [prevPoint.x, prevPoint.y, pointer.x, pointer.y],
+            { stroke: 'rgba(0,0,0,0.3)', strokeWidth: 2, selectable: false, evented: false, isTemporary: true }
+        );
+        canvas.add(segmentLine); // main.js의 object:added에서 필터링됨
+        tempPolylineSegments.push(segmentLine);
     }
-    console.log('Points:', polygonPoints);
     canvas.renderAll();
 }
 
+/**
+ * 다각형 그리기 모드 중 마우스 이동 이벤트 핸들러 (미리보기 선)
+ */
 function handlePolygonMouseMove(options) {
     if (!isDrawingPolygon || polygonPoints.length === 0) return;
-
     const pointer = canvas.getPointer(options.e);
     const lastPoint = polygonPoints[polygonPoints.length - 1];
 
-    if (tempLine) {
-        canvas.remove(tempLine);
-    }
-    // 마지막으로 찍은 점에서 현재 마우스 커서 위치까지 임시 선 그리기
+    if (tempLine) canvas.remove(tempLine); // 이전 미리보기 선 제거
     tempLine = new fabric.Line([lastPoint.x, lastPoint.y, pointer.x, pointer.y], {
-        stroke: 'rgba(0,0,255,0.5)', // 마우스 따라다니는 임시 선 스타일
-        strokeDashArray: [5, 5], // 점선
-        strokeWidth: 1,
-        selectable: false,
-        evented: false,
+        stroke: 'rgba(0,0,255,0.5)', strokeDashArray: [5, 5], strokeWidth: 1,
+        selectable: false, evented: false, isTemporary: true
     });
-    canvas.add(tempLine);
+    canvas.add(tempLine); // main.js의 object:added에서 필터링됨
     canvas.renderAll();
 }
 
+/**
+ * 다각형 그리기 모드 중 더블클릭 이벤트 핸들러 (그리기 완료)
+ */
 function handlePolygonDoubleClick(options) {
     if (isDrawingPolygon) {
-        finishDrawingPolygon();
+        completePolygonDrawing();
     }
 }
 
+/**
+ * 프레임 도구 초기화 함수 (사각형 프레임 추가, 다각형 프레임 그리기 시작/완료)
+ */
 export function initializeFrameTool() {
+    // 사각형 프레임 추가 버튼 이벤트 리스너
     if (addRectFrameButton) {
         addRectFrameButton.addEventListener('click', () => {
-            const frame = new fabric.Rect({
-                left: 100,
-                top: 100,
-                width: 250,
-                height: 180,
-                fill: 'rgba(0,0,0,0)',
-                stroke: 'black',
-                strokeWidth: 3,
-            });
-            canvas.add(frame);
-            canvas.setActiveObject(frame);
-            bringAllTextToFront();
-        });
-    }
-
- // 다각형 프레임 그리기 시작
-    if (startPolygonFrameButton) {
-        startPolygonFrameButton.addEventListener('click', () => {
-            if (isDrawingPolygon) { // 이미 그리기 모드일 경우
-                // 그리기를 취소하는 로직으로 변경하거나, 메시지만 표시
-                console.log("Already in polygon drawing mode. Click 'Finish Drawing Polygon' or double-click to complete.");
+            if (getActiveDrawingTool() !== null) { // 다른 그리기 작업 중인지 확인
+                alert("다른 그리기 작업을 먼저 완료하거나 취소해주세요.");
                 return;
             }
-            isDrawingPolygon = true;
-            polygonPoints = []; // 점 목록 초기화
-            clearTemporaryPolygonElements(); // 혹시 모를 이전 임시 요소 제거
-
-            startPolygonFrameButton.style.display = 'none';
-            finishPolygonFrameButton.style.display = 'inline-block';
-            canvas.defaultCursor = 'crosshair'; // 커서 모양 변경
-
-            // 이벤트 리스너 등록
-            canvas.on('mouse:down', handlePolygonMouseDown);
-            canvas.on('mouse:move', handlePolygonMouseMove);
-            canvas.on('mouse:dblclick', handlePolygonDoubleClick); // 더블클릭으로 완성
-
-            console.log("Polygon drawing mode started. Click on canvas to add points.");
+            const frame = new fabric.Rect({
+                left: 100, top: 100, width: 250, height: 180,
+                fill: 'rgba(0,0,0,0)', stroke: 'black', strokeWidth: 3,
+                id: 'rect_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                customName: '사각형 프레임'
+            });
+            canvas.add(frame); // main.js의 object:added에서 레이어 추가 및 상태 저장
+            canvas.setActiveObject(frame);
         });
     }
 
-    // 다각형 그리기 완료 버튼
+    // 다각형 프레임 그리기 시작 버튼 이벤트 리스너
+    if (startPolygonFrameButton) {
+        startPolygonFrameButton.addEventListener('click', () => {
+            // 이미 다각형을 그리고 있거나, 다른 그리기 도구가 활성화 중이면 시작 안 함
+            if (isDrawingPolygon || getActiveDrawingTool() !== null) {
+                return;
+            }
+            canvas.discardActiveObject().renderAll(); // 다른 선택 해제
+
+            setVolatileState(true); // 다각형 그리기 중간 과정은 히스토리 저장 안 함
+            isDrawingPolygon = true;
+            polygonPoints = []; // 새 그리기를 위해 점 목록 초기화
+            clearTemporaryDrawingElements(); // 이전 임시 요소들 확실히 제거
+
+            // finishPolygonFrameButton.style.display = 'inline-block'; // toolStateManager가 처리
+            canvas.defaultCursor = 'crosshair';
+            setActiveDrawingTool('polygon'); // 전역 도구 상태를 'polygon'으로 (버튼 UI 업데이트 유발)
+
+            // 캔버스 이벤트 리스너 등록
+            canvas.on('mouse:down', handlePolygonMouseDown);
+            canvas.on('mouse:move', handlePolygonMouseMove);
+            canvas.on('mouse:dblclick', handlePolygonDoubleClick);
+
+            // ESC 키 취소 핸들러 등록
+            handleEscKeyForPolygonInstance = (e) => {
+                if (e.key === 'Escape' && isDrawingPolygon) {
+                    cancelPolygonDrawing(true); // ESC로 취소 시 전역 도구 상태도 리셋
+                }
+            };
+            document.addEventListener('keydown', handleEscKeyForPolygonInstance);
+        });
+    }
+
+    // 다각형 그리기 완료 버튼 이벤트 리스너
     if (finishPolygonFrameButton) {
         finishPolygonFrameButton.addEventListener('click', () => {
             if (isDrawingPolygon) {
-                finishDrawingPolygon();
+                completePolygonDrawing();
             }
         });
     }
