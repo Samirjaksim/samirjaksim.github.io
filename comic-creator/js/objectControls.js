@@ -1,6 +1,6 @@
 // js/objectControls.js
 import { canvas } from './canvasSetup.js';
-import { bringAllTextToFront } from './utils.js';
+// import { bringAllTextToFront } from './utils.js';
 import { updateTextToolUI } from './textTool.js';
 // removeLayerItem은 object:removed 이벤트에서 처리되므로 직접 import 필요 없음
 // rerenderLayerList는 레이어 순서 변경 시 필요
@@ -10,6 +10,8 @@ import { saveCanvasState } from './historyHandler.js'; // 상태 저장을 위�
 // 버튼 DOM 요소 참조
 const removeSelectedButton = document.getElementById('remove-selected'); // 기존 선택 객체 삭제 버튼
 const comicFilterButton = document.getElementById('apply-comic-filter');
+const contrastSlider = document.getElementById('contrast-slider'); // 대비 슬라이더
+const contrastValueDisplay = document.getElementById('contrast-value'); // 대비 값 표시 span
 const revertOriginalFilterButton = document.getElementById('revert-original-filter');
 const clearButton = document.getElementById('clear-canvas');
 const exportButton = document.getElementById('export-image');
@@ -24,13 +26,16 @@ const layerDeleteButton = document.getElementById('layer-delete-button');
 function applyGrayscaleComicFilter(imageObject) {
     if (!imageObject || !imageObject.isType('image')) {
         alert("이미지 객체에만 필터를 적용할 수 있습니다.");
-        return;
+        return false;
     }
     imageObject.filters = []; // 기존 필터 초기화
     imageObject.filters.push(new fabric.Image.filters.Grayscale());
-    imageObject.filters.push(new fabric.Image.filters.Contrast({ contrast: 0.45 }));
+    imageObject.filters.push(new fabric.Image.filters.Contrast({
+        contrast: contrastSlider.value / 100
+    }));
     imageObject.applyFilters();
     canvas.renderAll();
+    return true;
 }
 
 function revertToOriginal(imageObject) {
@@ -45,6 +50,8 @@ function revertToOriginal(imageObject) {
 
 // --- 초기화 함수 ---
 export function initializeObjectControls() {
+
+
 
     // 1. 기존 선택 객체 삭제 버튼 (팔레트 하단)
     if (removeSelectedButton) {
@@ -67,29 +74,57 @@ export function initializeObjectControls() {
         });
     }
 
+    // 대비 슬라이더 값 변경 시 UI 업데이트
+    if (contrastSlider && contrastValueDisplay) {
+        contrastSlider.addEventListener('input', (event) => {
+            // 슬라이더 값(-100 ~ 100)을 Fabric.js Contrast 필터 값(-1 ~ 1)으로 변환
+            const sliderValue = parseInt(event.target.value, 10);
+            const filterValue = sliderValue / 100;
+            contrastValueDisplay.textContent = filterValue.toFixed(2); // 소수점 2자리까지 표시
+
+            // (선택 사항) 슬라이더 조작 중 실시간으로 필터 미리보기 적용
+            // const activeObject = canvas.getActiveObject();
+            // if (activeObject && activeObject.isType('image')) {
+            //     // 현재 그레이스케일 상태는 유지하면서 대비만 변경하는 임시 필터 적용
+            //     // 또는, applyGrayscaleComicFilter를 호출하되, 히스토리 저장은 막음
+            //     // (이 부분은 UX를 고려하여 신중히 구현해야 함. 여기서는 버튼 클릭 시에만 적용)
+            // }
+        });
+    } else {
+        console.warn("Contrast slider UI elements not found.");
+    }
+
     // 2. 흑백 만화 필터 적용 버튼
-    if (comicFilterButton) {
+    if (comicFilterButton && contrastSlider) {
         comicFilterButton.addEventListener('click', () => {
             const activeObject = canvas.getActiveObject();
+            const sliderValue = parseInt(contrastSlider.value, 10);
+            const contrastLevel = sliderValue / 100; // -1 ~ 1 범위로 변환
+
+            let applied = false; // 필터가 한 번이라도 적용되었는지 추적
+
             if (activeObject && activeObject.isType('image')) {
-                applyGrayscaleComicFilter(activeObject);
-                bringAllTextToFront(); // 필터 적용 후 텍스트 레이어 우선순위
+                if (applyGrayscaleComicFilter(activeObject, contrastLevel)) {
+                    applied = true;
+                }
             } else {
-                // 다중 선택된 이미지 객체들에 필터 적용 (선택 사항)
                 const activeObjects = canvas.getActiveObjects();
                 if (activeObjects && activeObjects.length > 0) {
-                    let applied = false;
                     activeObjects.forEach(obj => {
                         if (obj.isType('image')) {
-                            applyGrayscaleComicFilter(obj);
-                            applied = true;
+                            if (applyGrayscaleComicFilter(obj, contrastLevel)) {
+                                applied = true; // 성공적으로 적용되면 플래그 설정
+                            }
                         }
                     });
-                    if (applied) bringAllTextToFront();
-                    else alert("필터를 적용할 이미지를 선택해주세요.");
-                } else {
-                    alert("필터를 적용할 이미지를 선택해주세요.");
                 }
+            }
+
+            if (applied) {
+                // bringAllTextToFront(); // 모든 레이어 평등 원칙에 따라 제거
+                saveCanvasState(); // 필터 적용 후 상태 저장
+            } else {
+                alert("필터를 적용할 이미지를 선택해주세요.");
             }
         });
     }
@@ -97,26 +132,28 @@ export function initializeObjectControls() {
     // 3. 원본 이미지로 되돌리기 버튼
     if (revertOriginalFilterButton) {
         revertOriginalFilterButton.addEventListener('click', () => {
+            // ... (기존 revert 로직과 유사, saveCanvasState 호출 추가) ...
+            let reverted = false;
             const activeObject = canvas.getActiveObject();
             if (activeObject && activeObject.isType('image')) {
                 revertToOriginal(activeObject);
-                bringAllTextToFront();
+                reverted = true;
             } else {
-                // 다중 선택된 이미지 객체들 필터 제거 (선택 사항)
                 const activeObjects = canvas.getActiveObjects();
                 if (activeObjects && activeObjects.length > 0) {
-                    let reverted = false;
                     activeObjects.forEach(obj => {
                         if (obj.isType('image')) {
                             revertToOriginal(obj);
                             reverted = true;
                         }
                     });
-                    if (reverted) bringAllTextToFront();
-                    else alert("원본으로 되돌릴 이미지를 선택해주세요.");
-                } else {
-                    alert("원본으로 되돌릴 이미지를 선택해주세요.");
                 }
+            }
+            if (reverted) {
+                // bringAllTextToFront(); // 제거
+                saveCanvasState(); // 상태 저장
+            } else {
+                alert("원본으로 되돌릴 이미지를 선택해주세요.");
             }
         });
     }

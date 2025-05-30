@@ -102,6 +102,12 @@
 
             <h3>필터 도구</h3>
             <button id="apply-comic-filter">흑백 만화 필터</button>
+            <div class="filter-control">
+                <label for="contrast-slider">대비:</label>
+                <input type="range" id="contrast-slider" min="0" max="100" value="45"> 
+                <!-- Fabric.js Contrast 필터는 -1 ~ 1 범위. UI는 -100 ~ 100으로 하고 JS에서 변환 -->
+                <span id="contrast-value" class="value-display">0.45</span>
+            </div>
             <button id="revert-original-filter">필터 해제</button>
 
             <h3>캔버스 도구</h3>

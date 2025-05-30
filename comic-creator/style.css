@@ -220,6 +220,14 @@ body {
 /* ==========================================================================
    Canvas Area & Controls
    ========================================================================== */
+
+.filter-control {
+    display: flex;
+    align-items: center;
+    margin-top: 8px; /* 필터 적용 버튼과의 간격 */
+    margin-bottom: 8px; /* 다음 버튼과의 간격 */
+}
+
 .canvas-area {
     flex-grow: 1;
     display: flex;
