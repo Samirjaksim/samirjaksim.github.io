@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>만화 메이커</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js" integrity="sha512-P6uimDKoj1nnPSo2sPmgbZy99pPq9nHXhLwddOnLi1DC+fEM83FEUcHPRPifbx1rlRkdMinViaWyDfG45G9BuA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Poor+Story&family=Stylish&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="image-palette">
+            <h2>이미지 라이브러리</h2>
+            
+            <!-- 통합된 이미지 업로드 및 목록 섹션 -->
+            <div class="layer-section"> <!-- 이 클래스명은 유지하거나 일반적인 이름으로 변경 가능 -->
+                <h3>
+                    
+                    <input type="file" id="unified-image-upload" class="image-upload" accept="image/*" multiple title="컴퓨터에서 이미지 파일 선택">
+                    <!-- data-layer-target, data-layer-type 속성 제거 -->
+                </h3>
+                <div id="unified-image-list" class="image-list">
+                    <!-- 업로드된 모든 이미지가 여기에 표시됩니다 -->
+                    <p class="empty-library-message">이미지 업로드 또는<br>이 곳으로 파일을 끌어오세요.</p>
+                    <!-- data-layer-type 속성 제거 -->
+                </div>
+            </div>
+
+            <div class="tool-section" id="text-tools">
+                <h3>텍스트 도구</h3>
+                <div>
+                    <label for="text-input">내용:</label>
+                    <input type="text" id="text-input" placeholder="텍스트를 입력하세요">
+                </div>
+                <div>
+                    <label for="font-family-select">폰트:</label>
+                    <select id="font-family-select">
+                        <option value="Arial">Arial</option>
+                        <option value="맑은 고딕">맑은 고딕</option>
+                        <!-- 웹 폰트 예시 (위 <link> 태그에 추가된 폰트) -->
+                        <option value="'Nanum Pen Script', cursive">나눔펜 스크립트</option>
+                        <option value="Nanum Gothic">나눔고딕</option>
+                        <option value="'Gaegu', cursive">개구</option>
+                        <option value="'Poor Story', cursive">Poor Story</option>
+                        <option value="'Stylish', sans-serif">Stylish</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="font-size-input">크기:</label>
+                    <input type="number" id="font-size-input" value="40" min="8" max="300">
+                </div>
+                <div>
+                    <label for="text-color-input">색상:</label>
+                    <input type="color" id="text-color-input" value="#000000">
+                </div>
+                <button id="add-text-button">텍스트 추가</button>
+            </div>
+        
+            <div class="tool-section" id="line-tool-section">
+                <h3>선 도구</h3>
+                <button id="start-polygon-line-button">선 그리기</button>
+                <button id="finish-polygon-line-button" style="display:none;">선 그리기 완료</button>
+            </div>
+            <div>
+                <label for="line-color-input">선 색상:</label>
+                <input type="color" id="line-color-input" value="#000000"> <!-- 기본 검은색 -->
+            </div>
+            <div>
+                <label for="line-width-input">선 굵기:</label>
+                <input type="range" id="line-width-input" min="1" max="50" value="3"> <!-- 기본 3px -->
+                <span id="line-width-value" class="value-display">3</span>px
+            </div>
+            
+
+            <div class="tool-section" id="brush-tool-section">
+    <h3>브러시 도구</h3>
+    <button id="toggle-draw-mode-button">브러시 그리기</button>
+    <div>
+        <label for="brush-type-select">종류:</label>
+        <select id="brush-type-select">
+            <option value="PencilBrush">연필</option>
+            <option value="CircleBrush">원형</option>
+            <option value="SprayBrush">스프레이</option>
+            <!-- 다른 브러시 타입 추가 가능 -->
+        </select>
+    </div>
+    <div>
+        <label for="brush-color-input">색상:</label>
+        <input type="color" id="brush-color-input" value="#000000">
+    </div>
+    <div>
+        <label for="brush-width-input">두께:</label>
+        <input type="range" id="brush-width-input" min="1" max="100" value="5">
+        <span id="brush-width-value">5</span>px
+    </div>
+</div>
+
+            <h3>필터 도구</h3>
+            <button id="apply-comic-filter">흑백 만화 필터</button>
+            <button id="revert-original-filter">필터 해제</button>
+
+            <h3>캔버스 도구</h3>
+            <button id="clear-canvas">캔버스 비우기</button>
+            <button id="export-image">이미지 저장</button>
+        </div>
+
+        <div class="canvas-area">
+            <h2>캔버스</h2>
+            
+            <canvas id="comic-canvas" width="800" height="600"></canvas>
+            <div class="canvas-controls-extra">
+                <button id="undo-button" title="실행 취소 (Ctrl+Z)">↩️ 실행 취소</button>
+                <button id="redo-button" title="다시 실행 (Ctrl+Y)">↪️ 다시 실행</button>
+
+                <button id="help-button" title="사용 설명서">❓ 사용 방법</button> <!-- 오른쪽 설명서 버튼 -->
+
+                <div class="canvas-preset-controls">
+                <label>캔버스 방향:</label>
+                <input type="radio" id="canvas-preset-landscape" name="canvas-preset" value="landscape" checked>
+                <label for="canvas-preset-landscape">가로 넓게 (기본)</label>
+                <input type="radio" id="canvas-preset-portrait" name="canvas-preset" value="portrait">
+                <label for="canvas-preset-portrait">세로 넓게 (만화 페이지)</label>
+            </div>
+            </div>
+        </div>
+
+        <!-- 새로운 레이어 편집기 패널 -->
+        <div class="layer-editor-panel">
+            <h2>레이어</h2>
+            <ul id="layer-list" class="layer-list-ul">
+                <!-- index.html 레이어 아이템 예시 부분 수정 -->
+            </ul>
+            <div class="layer-controls">
+                <button id="layer-up-button" title="위로">🔼</button>
+                <button id="layer-down-button" title="아래로">🔽</button>
+                <button id="layer-delete-button" title="삭제">🗑️</button>
+            </div>
+        </div>
+        <!-- 레이어 편집기 패널 끝 -->
+
+    </div>
+
+     <!-- (선택사항) 캔버스 우측에 레이어 편집기를 위한 공간 예시 -->
+        <!-- <div class="layer-editor-panel"> -->
+        <!-- <h2>레이어 편집기</h2> -->
+        <!-- 여기에 레이어 목록 및 편집 UI가 들어갈 예정 -->
+        <!-- </div> -->
+    </div>
+
+    <div id="help-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-modal-button" id="close-help-modal">×</span>
+            <h3>🎨 만화 제작기 사용 설명서 🖼️</h3>
+            
+            <h4>이미지 도구</h4>
+            <ul>
+                <li><strong>이미지 업로드:</strong> 상단의 '파일 선택' 버튼을 클릭하거나, 회색 점선 영역으로 이미지 파일을 드래그 앤 드롭하여 라이브러리에 추가할 수 있습니다.</li>
+                <li><strong>이미지 사용:</strong> 라이브러리의 이미지를 더블클릭하거나 캔버스로 드래그하면 캔버스에 추가됩니다.</li>
+                <li><strong>이미지 삭제 (라이브러리):</strong> 라이브러리의 이미지 위에서 마우스 오른쪽 버튼을 클릭하면 해당 이미지가 목록에서 삭제됩니다.</li>
+            </ul>
+
+            <h4>텍스트 도구</h4>
+            <ul>
+                <li><strong>텍스트 추가:</strong> 좌측의 '텍스트 추가' 버튼을 눌러 텍스트를 추가합니다.</li>
+                <li><strong>텍스트 편집:</strong> 캔버스 위의 텍스트 객체를 더블클릭하면 직접 내용을 수정할 수 있습니다. 선택된 텍스트는 왼쪽 도구 패널에서 폰트, 크기, 색상 변경이 가능합니다.</li>
+            </ul>
+
+            <h4>선 도구</h4>
+            <ul>
+                <!-- "사각형 추가" 버튼은 제거되었으므로 해당 설명 제외 -->
+                <li><strong>선 이어서 그리기:</strong> '선 그리기' 버튼을 누르고 캔버스에 점들을 클릭하여 다각형 선을 그립니다. 그리기를 마치려면 '그리기 완료' 버튼을 누르거나 더블클릭하세요. ESC 키로 취소할 수 있습니다.</li>
+                <li><strong>선 스타일:</strong> 선을 그리기 전 왼쪽 도구 패널에서 선 색상과 굵기를 조절할 수 있습니다.</li>
+            </ul>
+            
+            <h4>브러시 도구</h4>
+            <ul>
+                <li><strong>그리기 모드:</strong> '브러시 그리기' 버튼을 눌러 자유롭게 그림을 그릴 수 있습니다. 버튼을 다시 누르면 모드가 꺼집니다.</li>
+                <li><strong>브러시 설정:</strong> 그리기 모드가 켜진 상태에서 브러시 종류(연필, 원형, 스프레이), 색상, 두께를 조절할 수 있습니다.</li>
+                <li><strong>기타 사항:</strong> 그리기 모드가 켜져 있는 동안 그린 모든 선은 하나의 그림 레이어로 합쳐집니다.</li>
+            </ul>
+
+            <h4>캔버스 객체 공통</h4>
+            <ul>
+                <li><strong>선택 및 조작:</strong> 캔버스 위의 객체(이미지, 텍스트, 선, 그림)를 클릭하여 선택하고, 조절점을 드래그하여 크기 변경, 회전 등을 할 수 있습니다.</li>
+                <li><strong>삭제:</strong> 객체를 선택한 후 '선택된 객체 삭제' 버튼 또는 Delete/Backspace 키로 삭제할 수 있습니다.</li>
+                <li><strong>흑백 필터:</strong> 이미지 객체 선택 후 '흑백 만화 필터'를 적용하거나 '원본 이미지로' 되돌릴 수 있습니다. 만화 같은 연출을 할 때 유용합니다.</li>
+            </ul>
+            
+            <h4>레이어 편집기 (오른쪽 패널)</h4>
+            <ul>
+                <li><strong>레이어 목록:</strong> 캔버스에 추가된 객체들이 레이어 목록에 표시됩니다. 목록의 순서는 캔버스의 위아래 순서와 같습니다 (목록 위가 캔버스 위).</li>
+                <li><strong>레이어 선택:</strong> 목록의 아이템을 클릭하면 해당 객체가 캔버스에서 선택됩니다.</li>
+                <li><strong>가시성 (👁️/🙈):</strong> 눈 아이콘을 클릭하여 해당 레이어를 숨기거나 보이게 할 수 있습니다.</li>
+                <li><strong>잠금 (🔓/🔒):</strong> 자물쇠 아이콘을 클릭하여 해당 레이어를 선택 불가능(잠금)하거나 선택 가능하게 만들 수 있습니다. 잠긴 레이어는 다른 레이어 선택에 영향을 주지 않습니다.</li>
+                <li><strong>순서 변경 (🔼/🔽):</strong> 레이어를 선택하고 위/아래 화살표 버튼으로 순서를 변경할 수 있습니다.</li>
+                <li><strong>삭제 (🗑️):</strong> 레이어를 선택하고 휴지통 버튼으로 삭제할 수 있습니다.</li>
+                <li><strong>이름 변경:</strong> 레이어 이름을 더블클릭하여 수정할 수 있습니다.</li>
+            </ul>
+
+            <h4>기타 기능</h4>
+            <ul>
+                <li><strong>실행 취소/다시 실행 (↩️/↪️):</strong> 캔버스 하단의 버튼 또는 Ctrl+Z/Ctrl+Y(Cmd+Z/Cmd+Y)로 이전/다음 작업 상태로 되돌릴 수 있습니다.</li>
+                <li><strong>캔버스 비우기:</strong> 현재 캔버스의 모든 내용을 지웁니다.</li>
+                <li><strong>이미지로 저장:</strong> 현재 캔버스 내용을 PNG 파일로 저장합니다.</li>
+            </ul>
+            <p style="text-align:center; margin-top: 20px;">즐겁게 사용하세요! 😄</p>
+        </div>
+    </div>
+
+    <script src="js/main.js" type="module"></script> </body>
+</body>
+</html>

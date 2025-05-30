@@ -1,0 +1,610 @@
+/* ==========================================================================
+   Base Styles & Layout
+   ========================================================================== */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; /* System font stack */
+    margin: 0;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    min-height: 100vh; /* 화면 전체 높이 사용 */
+}
+
+.container {
+    display: flex;
+    gap: 20px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* 그림자 약간 조정 */
+    width: 100%;
+    max-width: 1800px; /* 최대 너비 (필요시 조절) */
+    box-sizing: border-box;
+}
+
+/* Common Heading Styles for Panels */
+.image-palette h2,
+.canvas-area h2,
+.layer-editor-panel h2 {
+    margin-top: 0;
+    margin-bottom: 15px; /* 제목 아래 간격 */
+    color: #333;
+    font-size: 1.3em; /* 약간 키움 */
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   Image Palette (Left Panel)
+   ========================================================================== */
+.image-palette {
+    width: 280px;
+    border-right: 1px solid #e0e0e0; /* 약간 연한 테두리 */
+    padding-right: 20px;
+    max-height: calc(100vh - 40px - 40px); /* body 패딩, container 패딩 고려 */
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.layer-section { /* 이미지 업로드 및 기타 도구 섹션 공통 */
+    margin-bottom: 25px; /* 섹션 간 간격 */
+}
+
+.layer-section h3 { /* 섹션 부제목 (예: 이미지 업로드) */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0; /* 섹션 첫 h3의 상단 마진 제거 */
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    color: #444; /* 약간 진하게 */
+    font-weight: 500;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f0f0f0; /* 약간 연하게 */
+}
+.tool-section h3 { /* 텍스트, 프레임 도구 등의 h3 */
+    /* .layer-section h3 스타일과 유사하게 하거나, border-bottom 제거 등 차별화 */
+    border-bottom: none;
+    margin-bottom: 15px;
+}
+
+
+#unified-image-upload { /* 파일 선택 input */
+    font-size: 0.9em;
+    /* 기본 "선택된 파일 없음" 텍스트를 완전히 숨기는 것은 CSS만으로 어려움. */
+    /* JS로 input을 숨기고 label을 버튼처럼 스타일링하는 것이 일반적. */
+    /* 현재는 title 속성으로 기능 안내. */
+}
+
+.image-list { /* 이미지 썸네일 목록 컨테이너 */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    min-height: 85px; /* 이미지 한 칸 + 패딩 정도의 최소 높이 */
+    position: relative; /* .empty-library-message 위치 기준 */
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.image-list.drag-over {
+    border: 2px dashed #007bff;
+    background-color: #e9f5ff;
+}
+
+.image-list img { /* 썸네일 이미지 */
+    width: 72px;
+    height: 72px;
+    border: 1px solid #ddd;
+    border-radius: 3px; /* 약간의 둥근 모서리 */
+    cursor: pointer;
+    object-fit: cover;
+    background-color: #f9f9f9; /* 로딩 전 배경 */
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.image-list img:hover {
+    transform: scale(1.08); /* 약간 줄임 */
+    border-color: #007bff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.empty-library-message {
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #aaa;
+    font-size: 0.9em;
+    text-align: center;
+    padding: 5px;
+    pointer-events: none;
+    display: none; /* JS로 .is-empty 클래스 토글 시 표시 */
+    width: calc(100% - 20px); /* 패딩 고려한 너비 */
+    box-sizing: border-box;
+}
+
+.image-list.is-empty { /* 이미지가 없을 때 flex 정렬 방지 (메시지 중앙 유지) */
+    display: block; /* flex 대신 block으로 변경하여 메시지 중앙 정렬 용이 */
+}
+.image-list.is-empty .empty-library-message {
+    display: block;
+}
+
+/* 이미지가 있을 때만 flexbox 관련 스타일 적용 */
+/* .image-list:not(.is-empty) 는 JS에서 is-empty 클래스 제거 시 자동으로 아래 스타일 적용됨 */
+/* .image-list 에 기본으로 flex를 주고, is-empty일 때만 block으로 바꾸는 것이 더 간단할 수 있음 */
+
+
+/* ==========================================================================
+   Tool Sections (Text, line, Brush etc.)
+   ========================================================================== */
+.tool-section {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0; /* 섹션 구분선 */
+}
+.image-palette .tool-section:first-of-type { /* 첫번째 tool-section의 상단 테두리 제거 */
+    border-top: none;
+    padding-top: 0;
+    margin-top: 10px; /* h3와의 간격 조정 */
+}
+
+
+.tool-section div { /* 각 도구 항목 (label + input) */
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.tool-section label {
+    width: 70px; /* 레이블 너비 통일 (필요시 조절) */
+    font-size: 0.9em;
+    margin-right: 8px; /* 레이블과 입력 요소 사이 간격 */
+    flex-shrink: 0;
+}
+
+.tool-section input[type="text"],
+.tool-section select,
+.tool-section input[type="range"], /* range input도 포함 */
+.tool-section input[type="number"] {
+    flex-grow: 1;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 0.9em;
+}
+.tool-section input[type="range"] {
+    padding: 0; /* range input은 패딩 불필요 */
+}
+
+
+.tool-section input[type="color"] {
+    min-width: 30px; /* 최소 너비 */
+    max-width: 50px; /* 최대 너비 */
+    height: 30px;
+    padding: 2px; /* 약간의 패딩 */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-left: auto; /* 오른쪽 정렬 */
+}
+
+/* 값 표시 span (예: 브러시 두께) */
+.tool-section .value-display {
+    min-width: 25px;
+    text-align: right;
+    font-size: 0.9em;
+    margin-left: 5px;
+    display: inline-block;
+}
+
+#line-tool-section #finish-polygon-line-button { /* ID 변경됨 */
+    background-color: #28a745; /* 브러시 완료 버튼과 동일한 스타일 */
+    color: white;
+}
+
+#line-tool-section #finish-polygon-line-button:hover {
+    background-color: #218838;
+}
+
+/* 특정 도구 비활성화 시 (예: 텍스트 도구) */
+#text-tools.disabled input,
+#text-tools.disabled select { /* 버튼 제외 */
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   Canvas Area & Controls
+   ========================================================================== */
+.canvas-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /* align-items: center; */ /* canvas-controls-extra 왼쪽 정렬 위해 제거 또는 수정 */
+}
+
+.canvas-area h2 {
+    align-self: flex-start; /* "캔버스" 제목 왼쪽 정렬 */
+}
+
+.canvas-preset-controls {
+    margin-bottom: 10px; /* 캔버스와의 간격 */
+    display: flex;
+    align-items: center;
+    gap: 5px; /* 레이블과 라디오 버튼 사이 간격 */
+    font-size: 0.9em;
+    align-self: flex-start; /* 왼쪽 정렬 */
+}
+.canvas-preset-controls label { /* 라디오 버튼 옆 레이블 */
+    margin-right: 10px; /* 각 옵션 그룹 사이 간격 */
+    cursor: pointer;
+}
+.canvas-preset-controls input[type="radio"] {
+    margin-right: 3px;
+    cursor: pointer;
+}
+
+#comic-canvas {
+    border: 1px solid #333; /* 약간 진하게 */
+    /* align-self: center; /* 캔버스 자체는 중앙 정렬 */
+    /* background-color: white; */ /* JS에서 설정 */
+    max-width: 100%;
+    /* max-height는 JS에서 캔버스 크기 조절 시 동적으로 설정하는 것이 더 유연할 수 있음 */
+    /* object-fit: contain; */ /* canvas 요소에는 object-fit 적용 안됨 */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* 캔버스에도 약간의 그림자 */
+}
+
+.canvas-controls-bottom {
+    display: flex;
+    justify-content: space-between; /* 왼쪽(Undo/Redo)과 오른쪽(설명서) 분리 */
+    align-items: center;
+    /* width: 100%; /* 캔버스 너비에 맞춤 (또는 #comic-canvas 너비에 맞춤) */
+    margin-top: 10px; /* 캔버스와의 간격 */
+    padding: 0 5px; /* 좌우 약간의 여백 */
+    box-sizing: border-box;
+}
+
+.canvas-controls-extra { /* Undo/Redo 버튼 컨테이너 */
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    align-self: flex-start; /* 왼쪽 정렬 */
+}
+
+.canvas-controls-extra button { /* Undo/Redo 버튼 스타일은 기존 유지 또는 약간 수정 */
+    padding: 6px 10px;
+    font-size: 0.9em;
+    background-color: #6c757d;
+    color: white;
+    margin-top: 0;
+    width: auto;
+}
+
+.canvas-controls-extra button {
+    padding: 6px 10px; /* 패딩 약간 줄임 */
+    font-size: 0.9em;
+    background-color: #6c757d;
+    color: white; /* 글자색은 흰색으로 통일 */
+    margin-top: 0; /* 그룹 내 마진 제거 */
+    width: auto; /* 내용에 맞게 너비 */
+}
+.canvas-controls-extra button:hover {
+    background-color: #5a6268;
+}
+.canvas-controls-extra button:disabled {
+    background-color: #adb5bd;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+#help-button { /* 설명서 버튼 스타일 */
+    padding: 6px 12px;
+    font-size: 0.9em;
+    background-color: #007bff; /* 기본 버튼 색상 또는 다른 색상 */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 0; /* 그룹 내이므로 상단 마진 제거 */
+}
+#help-button:hover {
+    background-color: #0056b3;
+}
+
+.modal {
+    display: none; /* 초기에는 숨김 (JS로 제어) */
+    position: fixed; /* 화면 전체에 고정 */
+    z-index: 1001; /* 다른 요소들보다 위에 표시 (캔버스 z-index 고려) */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* 내용이 길면 스크롤 */
+    background-color: rgba(0,0,0,0.5); /* 반투명 배경 */
+    padding-top: 50px; /* 모달이 상단에서 약간 떨어지도록 */
+    box-sizing: border-box;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto; /* 수평 중앙 정렬 */
+    padding: 25px 30px;
+    border: 1px solid #888;
+    width: 80%; /* 모달 너비 */
+    max-width: 700px; /* 최대 너비 */
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative; /* 닫기 버튼의 absolute 기준 */
+}
+
+.close-modal-button {
+    color: #aaa;
+    float: right; /* 오른쪽 상단에 배치 */
+    font-size: 28px;
+    font-weight: bold;
+    line-height: 1;
+    padding: 0 5px;
+}
+
+.close-modal-button:hover,
+.close-modal-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#help-modal h3 {
+    margin-top: 0;
+    color: #2c3e50;
+    text-align: center;
+    font-size: 1.6em;
+    margin-bottom: 20px;
+}
+
+#help-modal h4 {
+    font-size: 1.2em;
+    color: #34495e;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+#help-modal h4:first-of-type {
+    margin-top: 0; /* 첫 번째 h4의 상단 마진 제거 */
+}
+
+
+#help-modal ul {
+    list-style: disc; /* 기본 불릿 사용 */
+    padding-left: 20px; /* 들여쓰기 */
+    margin-bottom: 15px;
+}
+
+#help-modal li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+    font-size: 0.95em;
+}
+#help-modal li strong {
+    color: #007bff; /* 강조 텍스트 색상 */
+}
+
+/* ==========================================================================
+   Layer Editor Panel (Right Panel)
+   ========================================================================== */
+.layer-editor-panel {
+    width: 250px;
+    border-left: 1px solid #e0e0e0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 40px - 40px); /* body, container 패딩 고려 */
+    flex-shrink: 0;
+}
+
+.layer-list-ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background-color: #fdfdfd; /* 약간의 배경색 */
+}
+
+.layer-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 8px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.15s ease; /* 전환 약간 빠르게 */
+    font-size: 0.85em; /* 약간 작게 */
+    min-height: 32px; /* 높이 일관성 */
+}
+.layer-item:last-child { border-bottom: none; }
+.layer-item:hover { background-color: #f5f5f5; }
+.layer-item.selected {
+    background-color: #e0e7ff; /* 약간 다른 파란색 계열 */
+    font-weight: 500; /* bold 대신 500 */
+}
+
+.layer-type-icon {
+    margin-right: 8px; /* 간격 약간 늘림 */
+    font-size: 1em; /* 이름과 동일 크기 또는 약간 크게 */
+    flex-shrink: 0;
+    width: 20px; /* 아이콘 공간 확보 */
+    text-align: center;
+}
+
+.layer-name {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4; /* input과 수직 정렬 도움 */
+}
+
+.layer-name-input {
+    flex-grow: 1;
+    font-size: inherit;
+    padding: 2px 4px; /* 패딩 약간 조정 */
+    margin: 0;
+    border: 1px solid #007bff;
+    border-radius: 3px;
+    line-height: 1.4; /* 이름 span과 일치 */
+    box-sizing: border-box;
+    font-family: inherit; /* 부모 폰트 상속 */
+}
+
+.layer-actions { /* 레이어 아이템 내 액션 버튼 그룹 */
+    display: flex;
+    align-items: center;
+    margin-left: auto; /* 오른쪽 끝으로 밀어냄 */
+    flex-shrink: 0;
+    padding-left: 5px; /* 이름과의 최소 간격 */
+}
+
+/* 레이어 아이템 내 버튼들 (가시성, 잠금) */
+.layer-item .layer-action-button { /* JS에서 이 클래스 추가 시 */
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em; /* 아이콘 약간 크게 */
+    padding: 0 4px;
+    color: #666;
+    line-height: 1;
+}
+.layer-item .layer-action-button:not(:first-child) {
+    margin-left: 4px; /* 버튼 사이 간격 */
+}
+.layer-item .layer-action-button:hover { color: #000; }
+
+/* 개별 버튼 스타일 (JS에서 .layer-action-button 클래스 미사용 시) */
+.layer-visible-toggle,
+.layer-lock-toggle {
+    background: none; border: none; cursor: pointer;
+    font-size: 1.2em; padding: 0 4px; color: #666; line-height: 1;
+    flex-shrink: 0;
+}
+.layer-lock-toggle { margin-left: 4px; }
+.layer-visible-toggle:hover, .layer-lock-toggle:hover { color: #000; }
+
+
+.layer-item .layer-visible-toggle.hidden-eye,
+.layer-item .layer-lock-toggle.locked {
+    opacity: 0.4; /* 약간 더 투명하게 */
+    color: #888; /* 아이콘 색상도 변경 */
+}
+.layer-item .layer-visible-toggle.hidden-eye {
+    /* text-decoration: line-through; */ /* 취소선은 너무 강할 수 있음 */
+}
+
+
+.layer-controls { /* 레이어 편집기 하단 컨트롤 버튼 그룹 */
+    margin-top: 15px; /* 목록과의 간격 */
+    display: flex;
+    gap: 8px;
+}
+
+.layer-controls button {
+    flex-grow: 1;
+    padding: 8px;
+    font-size: 0.9em;
+    margin-top: 0;
+    /* 기본 버튼 스타일 상속 또는 개별 색상 지정 */
+    background-color: #f0f0f0; /* 기본 배경 */
+    color: #333; /* 기본 글자색 */
+    border: 1px solid #ccc; /* 테두리 추가 */
+}
+.layer-controls button:hover {
+    background-color: #e0e0e0;
+    border-color: #bbb;
+}
+
+
+/* ==========================================================================
+   General Button Styles (팔레트 하단 버튼들)
+   ========================================================================== */
+.image-palette > button, /* 팔레트 직속 자식 버튼들만 해당 */
+.tool-section > button { /* 도구 섹션 직속 자식 버튼들만 해당 */
+    display: block;
+    width: 100%; /* 부모 너비 100% */
+    padding: 10px;
+    margin-top: 12px; /* 버튼 간 상단 간격 */
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.95em; /* 약간 작게 */
+    text-align: center;
+    transition: background-color 0.2s ease;
+    box-sizing: border-box;
+}
+.image-palette > button:first-of-type,
+.tool-section > button:first-of-type {
+    /* margin-top: 10px; */ /* 첫 버튼의 상단 마진 (필요시 조절) */
+}
+
+.image-palette > button:hover,
+.tool-section > button:hover {
+    background-color: #0056b3;
+}
+
+/* 개별 버튼 색상 (기존 스타일 유지 또는 위 일반 버튼 스타일로 통합) */
+button#clear-canvas { background-color: #dc3545; }
+button#clear-canvas:hover { background-color: #c82333; }
+button#remove-selected { background-color: #ffc107; color: black; }
+button#remove-selected:hover { background-color: #e0a800; }
+button#apply-comic-filter { background-color: #6c757d; }
+button#apply-comic-filter:hover { background-color: #5a6268; }
+button#revert-original-filter { background-color: #17a2b8; }
+button#revert-original-filter:hover { background-color: #138496; }
+
+/* 도구별 버튼 (브러시, 프레임) */
+#brush-tool-section button,
+#line-tool-section button { /* 일반 버튼 스타일 상속 */
+    width: 100%; /* 섹션 내에서는 100% 너비 */
+    margin-bottom: 10px;
+}
+#brush-tool-section button.active,
+#line-tool-section #finish-polygon-line-button { /* 활성/완료 버튼 스타일 */
+    background-color: #28a745;
+    /* color: white; (이미 흰색) */
+}
+#brush-tool-section button.active:hover,
+#line-tool-section #finish-polygon-line-button:hover {
+    background-color: #218838;
+}
+
+
+/* ==========================================================================
+   Web Fonts (예시, 실제 폰트 파일 경로 필요)
+   ========================================================================== */
+/* 
+@font-face {
+    font-family: 'NanumSquare';
+    font-weight: 400;
+    src: url('../fonts/NanumSquareR.woff2') format('woff2'), 
+         url('../fonts/NanumSquareR.woff') format('woff');
+}
+@font-face {
+    font-family: 'NanumSquare';
+    font-weight: 700;
+    src: url('../fonts/NanumSquareB.woff2') format('woff2'),
+         url('../fonts/NanumSquareB.woff') format('woff');
+}
+@font-face {
+    font-family: 'NanumSquareRound';
+    font-weight: 400;
+    src: url('../fonts/NanumSquareRoundR.woff2') format('woff2'),
+         url('../fonts/NanumSquareRoundR.woff') format('woff');
+}
+*/
