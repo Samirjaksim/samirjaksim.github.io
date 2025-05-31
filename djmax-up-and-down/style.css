@@ -102,6 +102,132 @@ h1 {
     cursor: pointer;
 }
 
+.nickname-setup {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: rgba(0,0,0,0.1);
+    border-radius: 6px;
+}
+.nickname-setup label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 1em;
+    color: #e0e0e0;
+}
+
+#leaderboard-section {
+    margin-top: 20px; /* 모드 선택 화면과의 간격 */
+    padding: 20px;
+    background-color: #2c3e50; /* body 배경색과 유사하게 */
+    border: 2px solid #4a637a; /* 카드 테두리와 유사한 색 */
+    border-radius: 8px;
+    /* display: none; */ /* .hidden 클래스로 제어 */
+}
+
+#leaderboard-section.hidden {
+    display: none !important;
+}
+
+#leaderboard-section h3 {
+    color: #f1c40f;
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+}
+.leaderboard-controls {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap; /* 작은 화면에서 줄바꿈 */
+}
+.leaderboard-controls label {
+    font-size: 0.95em;
+    color: #ecf0f1;
+}
+.leaderboard-controls select, 
+.leaderboard-controls input[type="checkbox"] {
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.leaderboard-controls select { /* select 스타일은 이전 답변에서 가져옴 */
+    width: 85px;
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid #7f8c8d;
+    background-color: #dde0e1;
+    color: #2c3e50;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.4-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right .7em top 50%, 0 0;
+    background-size: .65em auto, 100%;
+    cursor: pointer;
+}
+
+#view-leaderboard-button, #close-leaderboard-button {
+    padding: 8px 15px;
+    font-size: 0.95em;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#view-leaderboard-button {
+    background-color: #5dade2; /* 조회 버튼 색상 */
+}
+#view-leaderboard-button:hover {
+    background-color: #3498db;
+}
+#close-leaderboard-button {
+    background-color: #e74c3c; /* 닫기 버튼 색상 */
+}
+#close-leaderboard-button:hover {
+    background-color: #c0392b;
+}
+#leaderboard-display-area {
+    min-height: 100px; /* 최소 높이 설정 */
+    padding: 10px;
+    background-color: rgba(74, 99, 122, 0.5); /* #4a637a 의 반투명 버전 */
+    border-radius: 4px;
+    color: #ecf0f1;
+}
+#leaderboard-display-area ol {
+    list-style-type: decimal;
+    padding-left: 25px;
+    text-align: left;
+}
+#leaderboard-display-area li {
+    margin-bottom: 6px;
+    font-size: 0.95em;
+}
+#leaderboard-display-area p { /* 로딩 중, 결과 없음 등 메시지 스타일 */
+    text-align: center;
+    margin-top: 20px;
+    color: #bdc3c7;
+}
+
+#player-nickname-input {
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #7f8c8d;
+    background-color: #dde0e1;
+    color: #2c3e50;
+    width: 60%; /* 적절히 조절 */
+    max-width: 250px;
+    box-sizing: border-box;
+    text-align: center;
+}
+#player-nickname-input::placeholder {
+    color: #95a5a6;
+}
+
 #advanced-settings-wrapper {
     margin-top: 20px;
     margin-bottom: 20px;
@@ -137,6 +263,7 @@ h1 {
 }
 
 .setting-group {
+    text-align: center;
     margin-bottom: 15px;
 }
 .setting-group:last-child {
@@ -189,6 +316,24 @@ h1 {
     vertical-align: middle;
 }
 
+.main-action-buttons {
+    margin-top: 25px;
+    margin-bottom: 15px;
+}
+#show-leaderboard-main-button {
+    padding: 10px 20px;
+    font-size: 1.1em;
+    background-color: #8e44ad; /* 보라색 계열 */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+#show-leaderboard-main-button:hover {
+    background-color: #7d3c98;
+}
+
 .rule-reminder {
     font-size: 0.9em;
     color: #bdc3c7;
@@ -203,7 +348,23 @@ h1 {
 #score-board {
     font-size: 1.5em;
     margin-bottom: 20px;
-    color: #f1c40f; /* 점수 색상 */
+    color: #f1c40f;
+    display: flex; /* 점수와 목숨을 가로로 배치 */
+    justify-content: center; /* 가운데 정렬 */
+    align-items: center;
+    gap: 20px; /* 점수와 목숨 사이 간격 */
+}
+
+/* 목숨 표시 스타일 */
+#lives-display {
+    font-size: 0.8em; /* 점수보다 약간 작게 */
+    color: #e74c3c; /* 하트 또는 목숨 느낌의 색상 */
+}
+#lives-display.hidden { /* .hidden 클래스는 이미 정의됨 */
+    display: none !important;
+}
+#lives-count {
+    font-weight: bold;
 }
 
 #game-area {
@@ -222,18 +383,65 @@ h1 {
 }
 
 .card {
-    border: 2px solid #7f8c8d;
+    border: 2px solid #7f8c8d; /* 기본 테두리 */
     padding: 15px;
     margin-top: 10px;
     border-radius: 8px;
-    background-color: #4a637a;
+    background-color: #4a637a; /* 기본 배경색은 유지 */
     width: 100%; 
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* 내용물 정렬을 위해 유지 */
-    min-height: 280px; /* 이미지 공간 확보를 위해 최소 높이 조정 가능 */
-    align-items: center; /* 내부 요소 가운데 정렬 (이미지 등) */
+    justify-content: space-between;
+    min-height: 280px;
+    align-items: center;
+    position: relative; /* box-shadow 애니메이션이 부드럽게 보이도록 */
+    /* box-shadow: 0 0 0px rgba(0,0,0,0); */ /* 초기 box-shadow (선택적) */
+    /* transition: box-shadow 0.15s ease-out; */ /* 애니메이션으로 대체되므로 이 부분은 불필요 */
+}
+
+@keyframes correctGlowAnimation {
+    0% { box-shadow: 0 0 10px 5px rgba(46, 204, 113, 0.7), /* 바깥쪽 연한 초록 글로우 */
+                      0 0 20px 10px rgba(46, 204, 113, 0.5); } 
+    50% { box-shadow: 0 0 15px 7px rgba(46, 204, 113, 0.8),
+                      0 0 30px 15px rgba(46, 204, 113, 0.6); } /* 중간에 더 밝고 넓게 */
+    100% { box-shadow: 0 0 0px 0px rgba(46, 204, 113, 0); } /* 사라짐 (또는 기본 그림자로 복귀) */
+}
+
+@keyframes incorrectGlowAnimation {
+    0% { box-shadow: 0 0 10px 5px rgba(231, 76, 60, 0.7), /* 바깥쪽 연한 빨강 글로우 */
+                      0 0 20px 10px rgba(231, 76, 60, 0.5); }
+    50% { box-shadow: 0 0 15px 7px rgba(231, 76, 60, 0.8),
+                      0 0 30px 15px rgba(231, 76, 60, 0.6); }
+    100% { box-shadow: 0 0 0px 0px rgba(231, 76, 60, 0); }
+}
+
+/* 정답 시 카드 배경색 변경 클래스 */
+.card.correct-glow { /* 클래스명 변경 (flash -> glow) */
+    animation-name: correctGlowAnimation;
+    animation-duration: 0.3s; /* 점등 시간 (글로우 지속 시간) */
+    animation-timing-function: ease-out;
+    /* animation-fill-mode: forwards; */ /* forwards를 사용하면 100% 상태(사라짐)가 유지됨 */
+                                       /* 필요시 animation-iteration-count: 1; 추가 */
+}
+
+/* 오답 시 애니메이션 적용 클래스 */
+.card.incorrect-glow { /* 클래스명 변경 (flash -> glow) */
+    animation-name: incorrectGlowAnimation;
+    animation-duration: 0.3s; /* 점등 시간 */
+    animation-timing-function: ease-out;
+    /* animation-fill-mode: forwards; */
+}
+
+/* 점수 애니메이션을 위한 스타일 (선택적) */
+#score {
+    display: inline-block;
+    transition: transform 0.15s ease-out, color 0.15s ease-out; /* 시간 약간 줄임 */
+}
+
+#score.score-updated {
+    transform: scale(1.25); /* 약간 줄이거나 그대로 */
+    color: #58D68D; /* 연한 초록 계열로 통일감 */
 }
 
 .album-jacket {

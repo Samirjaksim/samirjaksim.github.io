@@ -25,44 +25,52 @@
                 <label for="sc-only-checkbox">SC 패턴만 나오게 해주세요!</label>
             </div>
 
-            <div class="options-area">
-                <input type="checkbox" id="hard-mode-checkbox">
-                <label for="hard-mode-checkbox">하드 모드 (비슷한 난이도만 출현합니다.)</label>
-            </div>
-
             <div id="advanced-settings-wrapper">
-                <button id="toggle-advanced-settings" type="button">고급 설정 펼치기</button>
-                <div id="advanced-settings-content" class="hidden"> <!-- 기본 숨김 -->
-                    <div class="setting-group">
-                        <h4>난이도 범위 (서열표 기준)</h4>
-                        <label for="level-min-select">최소:</label>
+                <button id="toggle-advanced-settings" type="button">고급 설정</button> <!-- 이전 '고급 설정 펼치기'에서 변경 -->
+                <div id="advanced-settings-content" class="hidden">
+                    <div class="setting-group level-range-setting"> <!-- 난이도 범위 그룹 -->
+                        <h4>난이도 범위</h4>
+                        <label for="level-min-select">최소 Level:</label>
                         <select id="level-min-select" name="level-min-select">
                             <option value="">전체</option>
-                            <!-- 옵션은 JS로 채울 예정 -->
                         </select>
-                        <label for="level-max-select">최대:</label>
+                        <label for="level-max-select">최대 Level:</label>
                         <select id="level-max-select" name="level-max-select">
                             <option value="">전체</option>
-                            <!-- 옵션은 JS로 채울 예정 -->
                         </select>
+                    </div>
+                    <div class="setting-group"> <!-- 이지 모드 그룹 -->
+                        <input type="checkbox" id="easy-mode-checkbox">
+                        <label for="easy-mode-checkbox">이지 모드 (목숨이 3개입니다.)</label>
+                    </div>
+                    <div class="setting-group"> <!-- 하드 모드 그룹 -->
+                        <input type="checkbox" id="hard-mode-checkbox"> 
+                        <label for="hard-mode-checkbox">하드 모드 (비슷한 난이도만 나옵니다.)</label>
                     </div>
                 </div>
             </div>
+            <!-- 리더보드 보기 버튼 등은 필요시 여기에 위치 (현재는 생략) -->
         </div>
 
+        <!-- 현재 모드 표시 (점수판 위로 이동 또는 원하는 위치) -->
+        <div id="current-mode-display" class="hidden">
+            현재 모드: <span id="current-mode-text"></span>
+        </div>
+
+        <!-- 점수판 (하나만 남기고 목숨 UI 포함) -->
         <div id="score-board" class="hidden">
             점수: <span id="score">0</span>
+            <span id="lives-display" class="hidden">목숨: <span id="lives-count"></span></span>
         </div>
 
         <div id="game-area" class="hidden">
             <div class="card-container">
                 <div id="left-card" class="card">
-                    <!-- 앨범 자켓 이미지 추가 -->
                     <img src="" alt="앨범 자켓" class="album-jacket"> 
                     <p class="song-title">곡명</p>
                     <p class="pattern-info">패턴 정보</p>
                     <p class="level-info">표기 레벨: <span class="level-value">?</span></p>
-                    <p class="floor-info">서열표 난이도: <span class="floor-value">?</span></p>
+                    <p class="floor-info">서열표 난이도 (Floor): <span class="floor-value">?</span></p>
                     <p class="composer-info">작곡가: <span class="composer-value">?</span></p>
                     <p class="dlc-info">DLC: <span class="dlc-value">?</span></p>
                 </div>
@@ -72,12 +80,11 @@
 
             <div class="card-container">
                 <div id="right-card" class="card">
-                    <!-- 앨범 자켓 이미지 추가 -->
                     <img src="" alt="앨범 자켓" class="album-jacket">
                     <p class="song-title">곡명</p>
                     <p class="pattern-info">패턴 정보</p>
                     <p class="level-info">표기 레벨: <span class="level-value">? (숨김)</span></p>
-                    <p class="floor-info">서열표 난이도: <span class="floor-value">? (숨김)</span></p>
+                    <p class="floor-info">서열표 난이도 (Floor): <span class="floor-value">? (숨김)</span></p>
                     <p class="composer-info">작곡가: <span class="composer-value">?</span></p>
                     <p class="dlc-info">DLC: <span class="dlc-value">?</span></p>
                 </div>
@@ -87,10 +94,6 @@
         <div id="controls" class="hidden">
             <button id="down-button">낮다 (DOWN)</button>
             <button id="up-button">높다 (UP)</button>
-        </div>
-
-        <div id="current-mode-display" class="hidden">
-            현재 모드: <span id="current-mode-text"></span>
         </div>
 
         <div id="game-over-message" class="hidden">
@@ -112,9 +115,11 @@
 
     <script src="js/constants.js"></script>
     <script src="js/dom.js"></script>
+    <script src="js/gameState.js"></script>
     <script src="js/data.js"></script>
     <script src="js/ui.js"></script>
-    <script src="js/game.js"></script>
+    <script src="js/gameLogic.js"></script>
+    <script src="js/gameFlow.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

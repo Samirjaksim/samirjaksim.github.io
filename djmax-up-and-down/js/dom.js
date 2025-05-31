@@ -22,5 +22,8 @@ const DOM = {
     advancedSettingsContent: document.getElementById('advanced-settings-content'),
     levelMinSelect: document.getElementById('level-min-select'),
     levelMaxSelect: document.getElementById('level-max-select'),
-    hardModeCheckbox: document.getElementById('hard-mode-checkbox')
+    hardModeCheckbox: document.getElementById('hard-mode-checkbox'),
+    easyModeCheckbox: document.getElementById('easy-mode-checkbox'),
+    livesDisplay: document.getElementById('lives-display'),
+    livesCount: document.getElementById('lives-count')
 };
