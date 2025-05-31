@@ -2,14 +2,14 @@
 
 function startGame() {
     currentScore = 0; // gameState.js
-    playedProblems = []; // gameState.js
+    playedProblems = []; // gameState.js - 새 게임 시작 시 초기화
     
     if (DOM.easyModeCheckbox.checked) { // dom.js
-        currentLives = EASY_MODE_LIVES; // gameState.js (EASY_MODE_LIVES 상수 사용)
+        currentLives = EASY_MODE_LIVES; // gameState.js
     } else {
-        currentLives = 1; // gameState.js (기본 목숨)
+        currentLives = 1; // gameState.js
     }
-    updateLivesDisplay(); // ui.js - 초기 목숨 표시
+    updateLivesDisplay(); // ui.js
 
     updateScoreDisplay(); // ui.js
     enableGameButtons(true); // 이 파일 내 함수
@@ -18,20 +18,23 @@ function startGame() {
 }
 
 function assignNewCards() {
+    // 왼쪽 카드 선택: playedProblems에 없는 새로운 문제여야 함
     currentLeftCardData = getRandomProblem(currentGamePlayableData, null, null, playedProblems); // gameLogic.js
     
     if (!currentLeftCardData) {
         if (playedProblems.length >= currentGamePlayableData.length && currentGamePlayableData.length > 0) {
              handleGameOver("축하합니다! 모든 문제를 클리어했습니다!");
         } else {
-            handleGameOver("문제를 생성할 수 없습니다. (왼쪽 카드 생성 실패, 데이터 부족 가능성)");
+            handleGameOver("문제를 생성할 수 없습니다. (왼쪽 카드 생성 실패)");
         }
         return;
     }
+    // 왼쪽 카드를 playedProblems에 즉시 추가
     if (!playedProblems.includes(currentLeftCardData.id)) {
         playedProblems.push(currentLeftCardData.id); // gameState.js
     }
 
+    // 오른쪽 카드 선택: playedProblems에 없고, 왼쪽 카드와 규칙에 맞게 다른 새로운 문제여야 함
     currentRightCardData = getRandomProblem(currentGamePlayableData, currentLeftCardData, currentLeftCardData.floor, playedProblems); // gameLogic.js
 
     if (!currentRightCardData) {
@@ -78,10 +81,16 @@ function handleGuess(isHigherGuess) {
     else correct = rightFloor < leftFloor;
 
     const feedbackCard = DOM.rightCardEl; // dom.js
-    const animationDuration = 300; // CSS의 animation-duration과 일치 (0.3초)
-    const nextActionDelay = 700;   // 다음 액션까지의 전체 딜레이 (0.7초)
+    const animationDuration = 300; 
+    const nextActionDelay = 700;   
 
-    if (correct) {
+    // ***** 핵심 변경: 정답/오답 처리 로직 통합 *****
+    // 1. 현재 오른쪽 카드를 playedProblems에 추가 (이미 나왔던 문제로 처리)
+    if (!playedProblems.includes(currentRightCardData.id)) {
+        playedProblems.push(currentRightCardData.id);
+    }
+
+    if (correct) { // 정답 시
         feedbackCard.classList.add('correct-glow');
         currentScore++; // gameState.js
         updateScoreDisplay(); // ui.js
@@ -90,27 +99,7 @@ function handleGuess(isHigherGuess) {
             feedbackCard.classList.remove('correct-glow');
         }, animationDuration);
 
-        setTimeout(() => {
-            if (!playedProblems.includes(currentRightCardData.id)) { // gameState.js
-                playedProblems.push(currentRightCardData.id);
-            }
-            currentLeftCardData = currentRightCardData; // gameState.js
-            currentRightCardData = getRandomProblem(currentGamePlayableData, currentLeftCardData, currentLeftCardData.floor, playedProblems); // gameLogic.js
-
-            if (!currentRightCardData) {
-                if (playedProblems.length >= currentGamePlayableData.length && currentGamePlayableData.length > 0) {
-                    handleGameOver("축하합니다! 모든 문제를 클리어했습니다!");
-                } else {
-                    let gameOverMsg = "더 이상 비교할 곡이 없습니다! 대단해요!";
-                    if (DOM.hardModeCheckbox.checked) gameOverMsg += ` (하드 모드 조건 포함)`; // dom.js
-                    handleGameOver(gameOverMsg);
-                }
-                return;
-            }
-            displayCard(DOM.leftCardEl, currentLeftCardData, false); // ui.js
-            displayCard(DOM.rightCardEl, currentRightCardData, true); // ui.js
-            enableGameButtons(true);
-        }, nextActionDelay);
+        // (목숨 차감 없음)
 
     } else { // 오답 시
         feedbackCard.classList.add('incorrect-glow');
@@ -120,38 +109,49 @@ function handleGuess(isHigherGuess) {
         setTimeout(() => {
             feedbackCard.classList.remove('incorrect-glow');
         }, animationDuration);
-
-        setTimeout(() => {
-            if (currentLives > 0) { // 목숨이 남아있으면
-                assignNewCards(); 
-                enableGameButtons(true);
-            } else { // 목숨이 없으면 게임 오버
-                handleGameOver(); 
-            }
-        }, nextActionDelay);
     }
+
+    // 2. 다음 단계 진행 (목숨이 남아있거나, 정답일 경우)
+    setTimeout(() => {
+        if (currentLives > 0) { // 목숨이 남아있으면 (정답 시에는 currentLives는 변경되지 않았으므로 이 조건 통과)
+            currentLeftCardData = currentRightCardData; // ***** 오른쪽 카드가 다음 왼쪽 카드가 됨 *****
+            
+            // 새로운 오른쪽 카드 선택 (이때 playedProblems에는 방금 왼쪽이 된 카드 포함)
+            currentRightCardData = getRandomProblem(currentGamePlayableData, currentLeftCardData, currentLeftCardData.floor, playedProblems); // gameLogic.js
+
+            if (!currentRightCardData) { // 더 이상 나올 카드가 없다면
+                if (playedProblems.length >= currentGamePlayableData.length && currentGamePlayableData.length > 0) {
+                    handleGameOver("축하합니다! 모든 문제를 클리어했습니다!");
+                } else {
+                    let gameOverMsg = "더 이상 비교할 곡이 없습니다! 대단해요!";
+                    if (DOM.hardModeCheckbox.checked) gameOverMsg += ` (하드 모드 조건 포함)`; // dom.js
+                    handleGameOver(gameOverMsg);
+                }
+                return;
+            }
+            // 새 카드들로 UI 업데이트
+            displayCard(DOM.leftCardEl, currentLeftCardData, false); // ui.js
+            displayCard(DOM.rightCardEl, currentRightCardData, true); // ui.js
+            enableGameButtons(true);
+
+        } else { // 목숨이 없으면 (오답으로 인해 0이 된 경우) 게임 오버
+            handleGameOver(); 
+        }
+    }, nextActionDelay);
 }
 
+// handleGameOver, enableGameButtons 함수는 이전과 동일 (리더보드 로직 없음)
 function handleGameOver(customMessage = "") {
-    // 게임 오버 메시지 영역에서 이전에 추가된 UI 요소들(예: 고급 설정 안내문)을 먼저 제거
     const existingNotice = DOM.gameOverMessageEl.querySelector('#advanced-option-notice');
-    if (existingNotice) {
-        existingNotice.remove();
-    }
-    // 리더보드 제출 영역도 이제 없으므로, 해당 ID를 가진 요소를 찾아서 제거할 필요는 없음
-    // const existingSubmitArea = DOM.gameOverMessageEl.querySelector('#leaderboard-submit-area');
-    // if (existingSubmitArea) {
-    //     existingSubmitArea.remove();
-    // }
+    if (existingNotice) existingNotice.remove();
 
-
-    DOM.finalScoreEl.textContent = currentScore; // gameState.js
+    DOM.finalScoreEl.textContent = currentScore;
     
     if (customMessage) {
-        DOM.answerRevealEl.innerHTML = customMessage; // dom.js
+        DOM.answerRevealEl.innerHTML = customMessage;
     } else {
-        const leftData = currentLeftCardData; // gameState.js
-        const rightData = currentRightCardData; // gameState.js
+        const leftData = currentLeftCardData;
+        const rightData = currentRightCardData;
         let relation = "";
         if (rightData && leftData) {
             if (rightData.floor > leftData.floor) relation = `<strong>높았습니다</strong> (L: ${leftData.floor.toFixed(1)}, R: ${rightData.floor.toFixed(1)})`;
@@ -165,32 +165,11 @@ function handleGameOver(customMessage = "") {
              DOM.answerRevealEl.innerHTML = `게임이 종료되었습니다. 최종 점수: ${currentScore}`;
         }
     }
-    showScreen('gameOver'); // ui.js
+    showScreen('gameOver');
     enableGameButtons(false);
-
-    // --- 리더보드 제출 로직은 완전히 제거 ---
-    // 고급 설정 사용 시 안내문은 여전히 유용할 수 있으나, "리더보드에 등록할 수 없다"는 문구는 이제 불필요.
-    // 필요하다면 "고급 설정을 사용한 플레이였습니다." 정도로 변경 가능.
-    // 여기서는 해당 안내문 로직도 일단 제거. (필요시 다시 추가)
-    /*
-    const usingAdvancedOptions = (
-        DOM.levelMinSelect.value !== "" || 
-        DOM.levelMaxSelect.value !== "" || 
-        DOM.hardModeCheckbox.checked ||
-        DOM.easyModeCheckbox.checked
-    );
-    
-    if (usingAdvancedOptions) {
-        const noticeEl = document.createElement('p');
-        noticeEl.id = 'advanced-option-notice';
-        noticeEl.innerHTML = "<small><em>이지 모드 또는 다른 고급 설정을 사용한 플레이였습니다.</em></small>";
-        noticeEl.style.color = "#f39c12";
-        DOM.gameOverMessageEl.appendChild(noticeEl);
-    }
-    */
 }
 
 function enableGameButtons(enable) {
-    DOM.upButton.disabled = !enable; // dom.js
-    DOM.downButton.disabled = !enable; // dom.js
+    DOM.upButton.disabled = !enable;
+    DOM.downButton.disabled = !enable;
 }
