@@ -52,11 +52,6 @@
             <!-- 리더보드 보기 버튼 등은 필요시 여기에 위치 (현재는 생략) -->
         </div>
 
-        <!-- 현재 모드 표시 (점수판 위로 이동 또는 원하는 위치) -->
-        <div id="current-mode-display" class="hidden">
-            현재 모드: <span id="current-mode-text"></span>
-        </div>
-
         <!-- 점수판 (하나만 남기고 목숨 UI 포함) -->
         <div id="score-board" class="hidden">
             점수: <span id="score">0</span>
@@ -94,6 +89,11 @@
         <div id="controls" class="hidden">
             <button id="down-button">낮다 (DOWN)</button>
             <button id="up-button">높다 (UP)</button>
+        </div>
+
+        <!-- 현재 모드 표시 (점수판 위로 이동 또는 원하는 위치) -->
+        <div id="current-mode-display" class="hidden">
+            현재 모드: <span id="current-mode-text"></span>
         </div>
 
         <div id="game-over-message" class="hidden">
