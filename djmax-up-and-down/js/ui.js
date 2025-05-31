@@ -121,7 +121,7 @@ function updateCurrentModeDisplay() {
     }
 
     if (DOM.hardModeCheckbox.checked) {
-        options.push("Hard Mode (±1.0 Floor)");
+        options.push("Hard Mode (±1.0)");
     }
 
     if (options.length > 0) {
