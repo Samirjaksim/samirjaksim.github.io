@@ -1,6 +1,6 @@
 // js/api.js - API 관련 모든 통신을 담당합니다.
 
-const API_URL = 'https://v-archive.net/db/songs.json';
+const API_URL = 'https://corsproxy.io/?url=https://v-archive.net/db/songs.json';
 
 export async function fetchAllSongs() {
     try {

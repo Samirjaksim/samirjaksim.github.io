@@ -68,20 +68,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedLevel = parseInt(levelSelect.value, 10);
 
         const filteredSongs = allSongs.filter(song => {
-            if (song.patterns && song.patterns[selectedButton]) {
-                const buttonPattern = song.patterns[selectedButton];
-                if (buttonPattern[selectedDifficulty]) {
-                    const difficultyPattern = buttonPattern[selectedDifficulty];
-                    return difficultyPattern.level === selectedLevel;
-                }
+            // 1. 기존 필터 조건(버튼, 난이도, 레벨)이 맞는지 확인합니다.
+            const matchesFilter = (
+                song.patterns &&
+                song.patterns[selectedButton] &&
+                song.patterns[selectedButton][selectedDifficulty] &&
+                song.patterns[selectedButton][selectedDifficulty].level === selectedLevel
+            );
+
+            // 필터 조건에 맞지 않으면 즉시 제외합니다.
+            if (!matchesFilter) {
+                return false;
             }
-            return false;
+
+            // 2. 필터 조건에 맞다면, 해당 곡이 이미 티어표에 있는지 확인합니다.
+            const uniqueId = `song-${song.title}-${selectedDifficulty}`;
+            const element = document.getElementById(uniqueId);
+            const isAlreadyPlacedInTier = element && tierContainer.contains(element);
+            return !isAlreadyPlacedInTier;
         });
 
         if (filteredSongs.length > 0) {
             renderSongs(filteredSongs, unrankedContainer, selectedDifficulty);
         } else {
-            unrankedContainer.innerHTML = '<p>해당 조건에 맞는 곡이 없습니다.</p>';
+            unrankedContainer.innerHTML = '<p>해당 조건에 맞는 곡이 없거나, 모두 티어표에 배치되었습니다.</p>';
         }
         
         initializeDraggables();
