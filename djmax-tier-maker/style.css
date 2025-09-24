@@ -335,3 +335,10 @@ h1, h2 {
     padding: 0 10px; /* 좌우 여백 (내용이 너무 길어질 경우 줄바꿈 위함) */
     line-height: 1.4; /* 줄 간격 */
 }
+
+.tier-label * {
+    font-weight: bold !important;
+    color: inherit !important;
+    font-size: inherit !important;
+    font-family: inherit !important;
+}
