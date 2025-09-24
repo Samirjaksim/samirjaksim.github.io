@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>디맥 티어 메이커</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>디맥 티어 메이커</h1>
+
+    <div class="main-controls">
+        <button id="add-tier-btn">+ 티어 추가</button>
+    </div>
+
+    <div class="tier-container" id="tier-container">
+        <div class="tier-row">
+            <div class="tier-label" style="background-color: #ff7f7f;" contenteditable="true">16.1</div>
+            <div class="move-controls">
+                <button class="move-up-btn">▲</button>
+                <button class="move-down-btn">▼</button>
+            </div>
+            <button class="color-picker-btn">🎨</button>
+            <button class="delete-tier-btn">×</button>
+            <div class="tier-items" data-tier="S"></div>
+        </div>
+        <div class="tier-row">
+            <div class="tier-label" style="background-color: #ffbf7f;" contenteditable="true">15.3</div>
+            <div class="move-controls">
+                <button class="move-up-btn">▲</button>
+                <button class="move-down-btn">▼</button>
+            </div>
+            <button class="color-picker-btn">🎨</button>
+            <button class="delete-tier-btn">×</button>
+            <div class="tier-items" data-tier="A"></div>
+        </div>
+        <div class="tier-row">
+            <div class="tier-label" style="background-color: #ffff7f;" contenteditable="true">15.2</div>
+            <div class="move-controls">
+                <button class="move-up-btn">▲</button>
+                <button class="move-down-btn">▼</button>
+            </div>
+            <button class="color-picker-btn">🎨</button>
+            <button class="delete-tier-btn">×</button>
+            <div class="tier-items" data-tier="B"></div>
+        </div>
+        <div class="tier-row">
+            <div class="tier-label" style="background-color: #7fff7f;" contenteditable="true">15.1</div>
+            <div class="move-controls">
+                <button class="move-up-btn">▲</button>
+                <button class="move-down-btn">▼</button>
+            </div>
+            <button class="color-picker-btn">🎨</button>
+            <button class="delete-tier-btn">×</button>
+            <div class="tier-items" data-tier="C"></div>
+        </div>
+        <div class="tier-row">
+            <div class="tier-label" style="background-color: #7fbfff;" contenteditable="true">14.3</div>
+            <div class="move-controls">
+                <button class="move-up-btn">▲</button>
+                <button class="move-down-btn">▼</button>
+            </div>
+            <button class="color-picker-btn">🎨</button>
+            <button class="delete-tier-btn">×</button>
+            <div class="tier-items" data-tier="D"></div>
+        </div>
+    </div>
+
+    <div class="unranked-container">
+        
+
+        <div class="filter-controls">
+            <fieldset>
+                <legend>버튼</legend>
+                <label><input type="radio" name="button-type" value="4B" checked> 4B</label>
+                <label><input type="radio" name="button-type" value="5B"> 5B</label>
+                <label><input type="radio" name="button-type" value="6B"> 6B</label>
+                <label><input type="radio" name="button-type" value="8B"> 8B</label>
+            </fieldset>
+
+            <fieldset>
+                <legend>난이도</legend>
+                <label><input type="radio" name="difficulty-type" value="NM" checked> NM</label>
+                <label><input type="radio" name="difficulty-type" value="HD"> HD</label>
+                <label><input type="radio" name="difficulty-type" value="MX"> MX</label>
+                <label><input type="radio" name="difficulty-type" value="SC"> SC</label>
+            </fieldset>
+
+            <fieldset>
+                <legend>레벨</legend>
+                <select id="level-select">
+                    <!-- JavaScript로 1~15 옵션 추가 예정 -->
+                </select>
+            </fieldset>
+
+            <button id="filter-btn">필터 적용</button>
+        </div>
+
+        <div class="unranked-items">
+            <p>필터 조건을 선택하고 '필터 적용' 버튼을 눌러주세요.</p>
+        </div>
+    </div>
+
+    <div id="color-palette" class="hidden"></div>
+
+    <script type="module" src="js/main.js"></script>
+
+    <footer id="page-footer">
+        <p>※ 본 사이트는 게임 DJMAX RESPECT V의 팬사이트이며, 사이트 내 사용된 모든 게임 컨텐츠(이미지, 문구 등)의 저작권은 NEOWIZ 사에 있습니다.</p>
+    </footer>
+</body>
+</html>
