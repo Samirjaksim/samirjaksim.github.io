@@ -142,37 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    tierContainer.addEventListener('input', (e) => {
-        const target = e.target;
-        // 이벤트가 .tier-label에서 발생했고, contentEditable 상태일 때만 실행
-        if (target.classList.contains('tier-label') && target.isContentEditable) {
-            
-            // 1. 현재 커서 위치를 저장합니다.
-            const selection = window.getSelection();
-            const range = selection.getRangeAt(0);
-            const caretPos = range.startOffset;
-
-            // 2. HTML 태그를 모두 제거한 순수 텍스트만 가져옵니다.
-            const cleanText = target.textContent;
-
-            // 3. 순수 텍스트로 내부 HTML을 교체합니다.
-            target.innerHTML = cleanText;
-
-            // 4. 저장했던 커서 위치를 복원합니다.
-            //    (텍스트 노드가 재생성되었으므로 다시 설정해야 함)
-            const newRange = document.createRange();
-            // target.firstChild가 null이 아닐 때만 실행하여 에러 방지
-            if (target.firstChild) {
-                // 커서 위치가 텍스트 길이를 넘어가지 않도록 보정
-                const newCaretPos = Math.min(caretPos, cleanText.length);
-                newRange.setStart(target.firstChild, newCaretPos);
-                newRange.collapse(true); // 범위를 커서로 만듦
-                selection.removeAllRanges();
-                selection.addRange(newRange);
-            }
-        }
-    });
-
     // 색상 팔레트에서 색상을 클릭했을 때의 이벤트 핸들러
     colorPalette.addEventListener('click', (e) => {
         if (e.target.classList.contains('color-swatch')) {
