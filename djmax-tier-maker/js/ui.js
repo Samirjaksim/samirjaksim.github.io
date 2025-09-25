@@ -24,6 +24,7 @@ export function renderSongs(songsToRender, container, selectedDifficulty) {
         
         img.src = `${IMAGE_BASE_URL}/static/images/jackets/${song.title}.jpg`;
         img.alt = song.name;
+        img.title = song.name;
         
         // ▼▼▼▼▼ 2. 기본 클래스와 함께 난이도별 테두리 클래스를 추가합니다. ▼▼▼▼▼
         img.className = `draggable border-${selectedDifficulty.toLowerCase()}`;
@@ -39,7 +40,7 @@ function addTierRow(container) {
     newTierRow.className = 'tier-row';
 
     newTierRow.innerHTML = `
-        <div class="tier-label" style="background-color: #cccccc;" contenteditable="true">Tier</div>
+        <div class="tier-label" style="background-color: #cccccc;" contenteditable="true">티어</div>
         <div class="move-controls">
             <button class="move-up-btn">▲</button>
             <button class="move-down-btn">▼</button>
