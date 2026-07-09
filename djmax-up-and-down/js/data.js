@@ -38,11 +38,11 @@ function prepareFullGameData() {
                         titleId: song.title,
                         name: song.name,
                         composer: song.composer,
-                        dlc: song.dlc,
+                        dlc: song.dlcCode,
                         buttonMode: buttonMode,
                         patternType: patternType, // 패턴 타입 (NM, HD, SC 등) 저장
                         level: patternData.level,
-                        floor: parseFloat(patternData.floor) 
+                        floor: parseFloat(patternData.floorName) 
                     });
                 }
             });
