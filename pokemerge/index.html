@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>포켓몬 합치기 게임</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- 상단 HUD -->
+  <div id="hud">
+    <div class="hud-item">
+      <span>💰 코인:</span>
+      <span id="coin-display" class="coin-text">0</span>
+    </div>
+
+    <div class="hud-center-group">
+      <button id="dex-toggle-btn" class="hud-btn" onclick="openPokedex()">
+        📖 도감 (<span id="dex-count">0</span> / 1025)
+      </button>
+      <button class="hud-btn icon-btn" onclick="openRulebook()" title="게임 방법 / 룰북">
+        📜 룰북
+      </button>
+      <button class="hud-btn icon-btn" onclick="openSettings()" title="설정">
+        ⚙️
+      </button>
+    </div>
+
+    <div class="hud-item">
+      <span>🐾 필드:</span>
+      <span id="field-count">0</span> / <span id="max-count">5</span>
+      <button id="expand-btn" class="expand-hud-btn" onclick="upgradeFieldCapacity()">
+        ➕ 확장 (100C)
+      </button>
+    </div>
+  </div>
+
+  <!-- 메인 필드 -->
+  <div id="field">
+    <div id="discovery-banner" class="discovery-banner hidden">
+      <div class="banner-badge">🎉 새로운 도감 등록!</div>
+      <div class="banner-body">
+        <img id="banner-img" src="" alt="새로운 포켓몬" />
+        <div class="banner-text">
+          <div id="banner-dex" class="banner-dex">#000</div>
+          <div id="banner-name" class="banner-name">이름 로딩 중...</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="info-tooltip" class="info-tooltip hidden">
+      <div class="tooltip-header">
+        <span id="tooltip-dex" class="tooltip-dex">#???</span>
+        <span id="tooltip-name" class="tooltip-name">로딩 중...</span>
+      </div>
+      <div id="tooltip-types" class="tooltip-types"></div>
+      <div id="tooltip-adopt-note" class="adopt-note hidden">🏷️ 입양 포켓몬 (합체 및 방생 코인 불가)</div>
+    </div>
+  </div>
+
+  <!-- 하단 컨트롤 바 -->
+  <div id="controls">
+    <button class="spawn-btn" onclick="spawnRandomBasic()">
+      🌱 기초 포켓몬 랜덤 소환 (#1~#5)
+    </button>
+    <button class="gacha-btn" onclick="pullGacha()">
+      🎲 포켓몬 뽑기 (<span class="gacha-cost">100</span> 코인)
+    </button>
+  </div>
+
+  <!-- 📖 도감 모달 -->
+  <div id="pokedex-modal" class="modal-backdrop hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>📖 포켓몬 도감</h2>
+        <span class="dex-summary">발견: <strong id="modal-dex-count">0</strong> / 1025 | 조사 완료: <strong
+            id="modal-inspect-count" style="color:#9ece6a;">0</strong></span>
+        <button class="close-btn" onclick="closePokedex()">✖</button>
+      </div>
+      <div class="gen-tabs" id="gen-tabs"></div>
+      <div class="pokedex-grid" id="pokedex-grid"></div>
+    </div>
+  </div>
+
+  <!-- 🔍 도감 상세 프로필 모달 -->
+  <div id="detail-modal" class="modal-backdrop hidden" style="z-index: 100005;">
+    <div class="modal-content detail-content">
+      <div class="modal-header">
+        <div class="detail-header-info">
+          <span id="detail-dex" class="detail-dex">#000</span>
+          <h2 id="detail-name">포켓몬 이름</h2>
+          <span id="detail-genus" class="detail-genus">분류</span>
+        </div>
+        <button class="close-btn" onclick="closeDetail()">✖</button>
+      </div>
+      <div class="detail-body">
+        <div class="detail-visual">
+          <img id="detail-img" src="" alt="포켓몬 이미지" />
+          <button id="detail-cry-btn" class="cry-play-btn" onclick="playCurrentDetailCry()">
+            🔊 울음소리 재생
+          </button>
+        </div>
+        <div class="detail-info-col">
+          <div class="detail-badge-group">
+            <div id="detail-types" class="tooltip-types"></div>
+            <div id="detail-reward-badge" class="inspect-reward-badge">
+              ✔ 조사 완료 (+50 코인)
+            </div>
+          </div>
+          <div class="detail-specs">
+            <span>📏 키: <strong id="detail-height">- m</strong></span>
+            <span>⚖️ 몸무게: <strong id="detail-weight">- kg</strong></span>
+          </div>
+          <div class="detail-flavor-box">
+            <span class="flavor-label">📖 도감 설명</span>
+            <p id="detail-flavor">도감 데이터를 받아오고 있습니다...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📜 룰북 모달 -->
+  <div id="rulebook-modal" class="modal-backdrop hidden">
+    <div class="modal-content rulebook-content">
+      <div class="modal-header">
+        <h2>📜 트레이너 가이드북 (게임 룰)</h2>
+        <button class="close-btn" onclick="closeRulebook()">✖</button>
+      </div>
+      <div class="rulebook-body">
+        <div class="rule-card">
+          <span class="rule-icon">🌱</span>
+          <div class="rule-text">
+            <strong>1. 기초 포켓몬 소환</strong>
+            <p>하단 버튼을 누르면 도감 번호 1번~5번 사이의 기초 포켓몬이 랜덤으로 필드에 나타납니다.</p>
+          </div>
+        </div>
+        <div class="rule-card">
+          <span class="rule-icon">🔀</span>
+          <div class="rule-text">
+            <strong>2. 덧셈 머지 (합체 진화)</strong>
+            <p>포켓몬을 드래그해서 다른 포켓몬 위에 놓으면 두 도감 번호가 합쳐진 새 포켓몬이 탄생합니다!</p>
+          </div>
+        </div>
+        <div class="rule-card">
+          <span class="rule-icon">💰</span>
+          <div class="rule-text">
+            <strong>3. 우클릭 방생 (코인 환전)</strong>
+            <p>포켓몬을 마우스 우클릭하면 자연으로 돌려보내고, 도감 번호만큼 코인을 얻습니다. (단, 🏷️ 입양 포켓몬은 코인이 나오지 않습니다.)</p>
+          </div>
+        </div>
+        <div class="rule-card">
+          <span class="rule-icon">🏷️</span>
+          <div class="rule-text">
+            <strong>4. 입양 포켓몬 규칙</strong>
+            <p>뽑기로 나온 포켓몬은 연구용 개체로, 합체와 방생 코인 획득이 모두 불가능합니다. (순수 도감 수집용!)</p>
+          </div>
+        </div>
+        <div class="rule-card">
+          <span class="rule-icon">🏡</span>
+          <div class="rule-text">
+            <strong>5. 목장 확장 시스템</strong>
+            <p>처음에는 5마리만 필드에 둘 수 있지만, 코인을 모아 최대 30마리까지 목장을 확장할 수 있습니다.</p>
+          </div>
+        </div>
+        <div class="rule-card">
+          <span class="rule-icon">🎓</span>
+          <div class="rule-text">
+            <strong>6. 오박사의 도감 연구 지원금</strong>
+            <p>도감에서 새로 발견한 포켓몬 카드를 클릭(터치)해 상세 프로필을 열람하면, 최초 1회에 한해 건당 50코인의 쏠쏠한 연구비(✔)를 지원해 줍니다!</p>
+          </div>
+        </div>
+        <div class="rule-card">
+          <span class="rule-icon">🎲</span>
+          <div class="rule-text">
+            <strong>7. 포켓몬 뽑기 머신</strong>
+            <p>100 코인을 소모하여 도감에 없는 1~1025번의 모든 포켓몬 중 하나를 무작위로 뽑습니다. (중복 없음!)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⚙️ 설정 모달 -->
+  <div id="settings-modal" class="modal-backdrop hidden">
+    <div class="modal-content settings-content">
+      <div class="modal-header">
+        <h2>⚙️ 게임 설정</h2>
+        <button class="close-btn" onclick="closeSettings()">✖</button>
+      </div>
+      <div class="settings-body">
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-title">🔊 울음소리 (효과음)</span>
+            <span class="setting-desc">도감 등록 시 재생되는 소리를 켜거나 끕니다.</span>
+          </div>
+          <button id="sound-btn" class="toggle-btn on" onclick="toggleSound()">켜짐 (ON)</button>
+        </div>
+        <hr class="setting-divider" />
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-title danger-text">⚠️ 데이터 완전 초기화</span>
+            <span class="setting-desc">모든 기록, 목장 확장 레벨, 코인, 필드 포켓몬을 초기화합니다.</span>
+          </div>
+          <button class="danger-btn" onclick="resetGameData()">초기화 실행</button>
+        </div>
+        <hr class="setting-divider" />
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-title">💾 세이브 데이터 백업 & 복원</span>
+            <span class="setting-desc">백업 코드를 복사해 메모장에 저장하거나 복원합니다.</span>
+          </div>
+          <div class="setting-btn-group">
+            <button class="backup-btn" onclick="exportSaveData()">📤 백업 복사</button>
+            <button class="backup-btn" onclick="importSaveData()">📥 복원하기</button>
+          </div>
+        </div>
+        <hr class="setting-divider" />
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+<!-- 메인 화면 하단 안전장치 (면책 조항 푸터) -->
+  <footer id="disclaimer-footer">
+    <p>본 게임은 비영리 목적으로 제작된 개인 팬메이드 토이 프로젝트입니다.</p>
+    <p>포켓몬스터 및 모든 관련 저작권은 © Nintendo / Creatures / GAME FREAK / Pokémon에 귀속됩니다.</p>
+  </footer>
+
+</html>

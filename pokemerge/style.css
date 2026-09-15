@@ -1,0 +1,1068 @@
+* {
+  box-sizing: border-box;
+  user-select: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* 🛡️ 전역 숨김 클래스 (입양 문구 강제 노출 버그 원천 차단!) */
+.hidden {
+  display: none !important;
+}
+
+body {
+  background-color: #1a1b26;
+  color: #edf2f4;
+  font-family: 'Pretendard', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* 상단 HUD */
+#hud {
+  width: 820px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: #24283b;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  font-weight: bold;
+  font-size: 1.1rem;
+  border: 2px solid #414868;
+  border-bottom: none;
+}
+
+.hud-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-center-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.coin-text {
+  color: #ffc107;
+  text-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
+}
+
+.hud-btn {
+  background: #bb9af7;
+  color: #1a1b26;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #7aa2f7;
+  transition: all 0.1s ease;
+}
+
+.hud-btn:hover {
+  background: #cbb2ff;
+  transform: translateY(-2px);
+}
+
+.hud-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #7aa2f7;
+}
+
+.icon-btn {
+  background: #414868;
+  color: #fff;
+  box-shadow: 0 3px 0 #24283b;
+}
+.icon-btn:hover {
+  background: #565f89;
+}
+
+/* ➕ 목장 확장 미니 버튼 */
+.expand-hud-btn {
+  background: #9ece6a;
+  color: #1a1b26;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 2px 0 #68923a;
+  transition: all 0.1s ease;
+}
+
+.expand-hud-btn:hover {
+  background: #b2e47e;
+  transform: translateY(-1px);
+}
+
+.expand-hud-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 #68923a;
+}
+
+.expand-hud-btn.disabled {
+  background: #565f89;
+  color: #a9b1d6;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 메인 필드 */
+#field {
+  width: 820px;
+  height: 520px;
+  background-color: #5b8e3d;
+  background-image: 
+    radial-gradient(#6ba347 15%, transparent 16%),
+    radial-gradient(#6ba347 15%, transparent 16%);
+  background-size: 40px 40px;
+  background-position: 0 0, 20px 20px;
+  border: 4px solid #3d6325;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.35);
+}
+
+/* 필드 포켓몬 */
+.pokemon {
+  width: 90px;
+  height: 90px;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  z-index: 10;
+  transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.pokemon::after {
+  content: '';
+  position: absolute;
+  bottom: 8px;
+  width: 50px;
+  height: 14px;
+  background: rgba(0, 0, 0, 0.28);
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.pokemon:active {
+  cursor: grabbing;
+  transform: scale(1.18);
+  z-index: 999 !important;
+}
+
+.pokemon img {
+  width: 80px;
+  height: 80px;
+  image-rendering: pixelated;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4))
+          drop-shadow(0 0 2px rgba(255, 255, 255, 0.2));
+}
+
+.pokemon .dex-badge {
+  background: rgba(20, 21, 30, 0.85);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-top: -6px;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.5px;
+}
+
+/* 🏷️ 입양 포켓몬 뱃지 */
+.pokemon .dex-badge.adopted {
+  border-color: #ff9e64;
+  background: rgba(40, 25, 20, 0.9);
+}
+
+/* 이로치 */
+.pokemon.shiny img {
+  filter: drop-shadow(0 0 10px #ffd166) drop-shadow(0 0 18px #ffb703);
+  animation: shinyPulse 1.2s infinite alternate ease-in-out;
+}
+
+.pokemon.shiny .dex-badge {
+  background: linear-gradient(135deg, #e0a96d, #ffd166);
+  color: #1a1b26;
+  border-color: #fff;
+}
+
+.pokemon.shiny::before {
+  content: '✨';
+  position: absolute;
+  top: -4px;
+  right: 12px;
+  font-size: 18px;
+  animation: floatStar 1s infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes shinyPulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.08); }
+}
+
+@keyframes floatStar {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-6px); }
+}
+
+/* 등록 배너 */
+.discovery-banner {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(26, 27, 38, 0.95);
+  backdrop-filter: blur(8px);
+  border: 2px solid #ffd166;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 209, 102, 0.4);
+  border-radius: 16px;
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  z-index: 10000;
+  animation: bannerPop 2.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  pointer-events: none;
+}
+
+.banner-badge {
+  font-size: 12px;
+  font-weight: 800;
+  color: #ffd166;
+  letter-spacing: 1px;
+}
+
+.banner-body {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.banner-body img {
+  width: 54px;
+  height: 54px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
+}
+
+.banner-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.banner-dex {
+  color: #7aa2f7;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.banner-name {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+@keyframes bannerPop {
+  0% { opacity: 0; transform: translate(-50%, -20px) scale(0.9); }
+  12% { opacity: 1; transform: translate(-50%, 0) scale(1.05); }
+  20% { transform: translate(-50%, 0) scale(1); }
+  85% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -30px) scale(0.9); }
+}
+
+/* 정보 툴팁 */
+.info-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(26, 27, 38, 0.92);
+  backdrop-filter: blur(8px);
+  border: 2px solid #7aa2f7;
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  z-index: 10000;
+  transition: opacity 0.15s ease;
+  min-width: 140px;
+}
+
+.tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tooltip-dex {
+  color: #7aa2f7;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.tooltip-name {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.tooltip-types {
+  display: flex;
+  gap: 6px;
+}
+
+.type-pill {
+  font-size: 11px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 6px;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.adopt-note {
+  font-size: 10px;
+  font-weight: bold;
+  color: #ff9e64;
+  margin-top: 2px;
+}
+
+/* 컨트롤 바 */
+#controls {
+  width: 820px;
+  display: flex;
+  gap: 16px;
+  padding: 16px 20px;
+  background: #24283b;
+  border-radius: 0 0 16px 16px;
+  justify-content: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  border: 2px solid #414868;
+  border-top: none;
+}
+
+.spawn-btn {
+  flex: 1.2;
+  padding: 14px;
+  font-size: 1.05rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #7aa2f7;
+  color: #1a1b26;
+  box-shadow: 0 4px 0 #3d59a1;
+  transition: all 0.1s ease;
+}
+
+.spawn-btn:hover {
+  background: #89b4fa;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #3d59a1;
+}
+
+.spawn-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #3d59a1;
+}
+
+.gacha-btn {
+  flex: 1.2;
+  padding: 14px;
+  font-size: 1.05rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #f7768e, #ff9e64);
+  color: #ffffff;
+  box-shadow: 0 4px 0 #b33951;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+  transition: all 0.1s ease;
+}
+
+.gacha-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #b33951;
+}
+
+.gacha-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #b33951;
+}
+
+.gacha-cost {
+  color: #ffe066;
+  font-weight: 800;
+}
+
+/* 방생 플로팅 텍스트 */
+.floating-coin {
+  position: absolute;
+  color: #ffc107;
+  font-weight: 800;
+  font-size: 18px;
+  pointer-events: none;
+  animation: floatUp 0.8s ease-out forwards;
+  z-index: 1000;
+  text-shadow: 0 2px 4px #000;
+}
+
+.floating-coin.shiny {
+  color: #ffd166;
+  font-size: 24px;
+  font-weight: 900;
+  background: linear-gradient(90deg, #ff9e64, #ffd166, #ff79c6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px rgba(255, 209, 102, 0.8));
+  animation: floatUpShiny 1.2s ease-out forwards;
+}
+
+.floating-coin.adopted {
+  color: #a9b1d6;
+  font-size: 15px;
+  font-weight: bold;
+  text-shadow: 0 2px 4px #000;
+}
+
+@keyframes floatUp {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-35px); }
+}
+
+@keyframes floatUpShiny {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  50% { transform: translateY(-25px) scale(1.2); }
+  100% { opacity: 0; transform: translateY(-50px) scale(1.3); }
+}
+
+.floating-msg {
+  position: absolute;
+  color: #7dcfff;
+  font-weight: 800;
+  font-size: 16px;
+  pointer-events: none;
+  animation: floatUp 1.2s ease-out forwards;
+  z-index: 1000;
+  text-shadow: 0 2px 5px #000;
+}
+
+/* 모달 공통 */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 12, 18, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modal-content {
+  width: 820px;
+  height: 580px;
+  background: #1f2335;
+  border: 2px solid #565f89;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 16px 24px;
+  background: #24283b;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #414868;
+}
+
+.modal-header h2 {
+  font-size: 1.3rem;
+  color: #c0caf5;
+}
+
+.dex-summary {
+  font-size: 0.95rem;
+  color: #9aa5ce;
+}
+.dex-summary strong {
+  color: #bb9af7;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #f7768e;
+  font-size: 1.3rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+.close-btn:hover {
+  transform: scale(1.2);
+}
+
+.gen-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 12px 20px;
+  background: #1a1b26;
+  border-bottom: 1px solid #414868;
+  overflow-x: auto;
+}
+
+.gen-tab-btn {
+  background: #24283b;
+  color: #a9b1d6;
+  border: 1px solid #414868;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.gen-tab-btn:hover {
+  background: #414868;
+  color: #fff;
+}
+
+.gen-tab-btn.active {
+  background: #7aa2f7;
+  color: #1a1b26;
+  border-color: #7aa2f7;
+  box-shadow: 0 2px 6px rgba(122, 162, 247, 0.4);
+}
+
+.pokedex-grid {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 12px;
+}
+
+.pokedex-grid::-webkit-scrollbar {
+  width: 8px;
+}
+.pokedex-grid::-webkit-scrollbar-thumb {
+  background: #414868;
+  border-radius: 4px;
+}
+
+/* 도감 카드 */
+.dex-card {
+  background: #24283b;
+  border: 1px solid #414868;
+  border-radius: 10px;
+  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  position: relative;
+  transition: transform 0.1s ease;
+}
+
+.dex-card img {
+  width: 54px;
+  height: 54px;
+  image-rendering: pixelated;
+}
+
+.dex-card .card-number {
+  font-size: 10px;
+  font-weight: bold;
+  color: #7aa2f7;
+}
+
+.dex-card .card-name {
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 85px;
+}
+
+.dex-card.discovered {
+  border-color: #7aa2f7;
+  background: #28304a;
+  cursor: pointer;
+}
+.dex-card.discovered:hover {
+  transform: translateY(-3px);
+  border-color: #bb9af7;
+  box-shadow: 0 4px 12px rgba(187, 154, 247, 0.3);
+}
+
+.dex-card.shiny-unlocked {
+  border: 2px solid #ffd166 !important;
+  box-shadow: 0 0 12px rgba(255, 209, 102, 0.45);
+  background: linear-gradient(135deg, #24283b, #3b3524);
+}
+
+.dex-card .shiny-star-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 12px;
+  color: #ffd166;
+  text-shadow: 0 0 6px #ffa200;
+}
+
+.dex-card .inspected-badge {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  font-size: 11px;
+  font-weight: 900;
+  color: #9ece6a;
+  background: rgba(15, 20, 25, 0.8);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #9ece6a;
+}
+
+.dex-card.locked {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.dex-card.locked img {
+  filter: brightness(0) opacity(0.35);
+}
+.dex-card.locked .card-number {
+  color: #565f89;
+}
+.dex-card.locked .card-name {
+  color: #565f89;
+}
+
+/* 상세 프로필 모달 */
+.detail-content {
+  width: 620px;
+  height: auto;
+  max-height: 600px;
+  border-color: #bb9af7;
+}
+
+.detail-header-info {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.detail-dex {
+  color: #7aa2f7;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.detail-genus {
+  color: #9aa5ce;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.detail-body {
+  padding: 24px;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.detail-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  min-width: 180px;
+}
+
+.detail-visual img {
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5));
+}
+
+.cry-play-btn {
+  background: #414868;
+  color: #c0caf5;
+  border: 1px solid #565f89;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cry-play-btn:hover {
+  background: #7aa2f7;
+  color: #1a1b26;
+}
+
+.detail-info-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.detail-badge-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.inspect-reward-badge {
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #9ece6a;
+  background: rgba(158, 206, 106, 0.15);
+  border: 1px solid #9ece6a;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.detail-specs {
+  display: flex;
+  gap: 18px;
+  font-size: 0.9rem;
+  color: #a9b1d6;
+  background: #1a1b26;
+  padding: 8px 14px;
+  border-radius: 8px;
+}
+.detail-specs strong {
+  color: #fff;
+}
+
+.detail-flavor-box {
+  background: #1a1b26;
+  border: 1px solid #414868;
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.flavor-label {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #bb9af7;
+}
+
+#detail-flavor {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #c0caf5;
+  word-break: keep-all;
+}
+
+/* 룰북 */
+.rulebook-content {
+  width: 600px;
+  height: 540px;
+}
+
+.rulebook-body {
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rulebook-body::-webkit-scrollbar {
+  width: 8px;
+}
+.rulebook-body::-webkit-scrollbar-thumb {
+  background: #414868;
+  border-radius: 4px;
+}
+
+.rule-card {
+  background: #24283b;
+  border: 1px solid #414868;
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.rule-icon {
+  font-size: 2rem;
+  min-width: 40px;
+  text-align: center;
+}
+
+.rule-text strong {
+  display: block;
+  font-size: 1.05rem;
+  color: #7aa2f7;
+  margin-bottom: 4px;
+  font-weight: 800;
+}
+
+.rule-text p {
+  font-size: 0.88rem;
+  color: #a9b1d6;
+  line-height: 1.45;
+  word-break: keep-all;
+}
+
+/* 설정 모달 */
+.settings-content {
+  width: 480px;
+  height: auto;
+  max-height: 400px;
+}
+
+.settings-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.setting-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.setting-title {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #c0caf5;
+}
+
+.setting-desc {
+  font-size: 0.8rem;
+  color: #9aa5ce;
+}
+
+.danger-text {
+  color: #f7768e;
+}
+
+.setting-divider {
+  border: none;
+  border-top: 1px solid #414868;
+  margin: 4px 0;
+}
+
+.toggle-btn {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toggle-btn.on {
+  background: #9ece6a;
+  color: #1a1b26;
+  box-shadow: 0 3px 0 #739b42;
+}
+
+.toggle-btn.off {
+  background: #565f89;
+  color: #cfc9c2;
+  box-shadow: 0 3px 0 #3b4261;
+}
+
+.danger-btn {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  background: #f7768e;
+  color: #1a1b26;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #bb3b52;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.danger-btn:hover {
+  background: #ff8a9f;
+  transform: translateY(-2px);
+}
+
+.pokemon .dex-badge.adopted {
+  border-color: #f7768e !important;
+  color: #ff9e64;
+}
+
+/* 백업/복원 버튼 스타일 */
+.setting-btn-group {
+  display: flex;
+  gap: 8px;
+}
+
+.backup-btn {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  background: #7aa2f7;
+  color: #1a1b26;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 0 #3d59a1;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.backup-btn:hover {
+  background: #89b4fa;
+  transform: translateY(-1px);
+}
+
+/* ================= 📱 모바일 화면 최적화 & 드래그 스크롤 ================= */
+
+/* 모바일 화면에서 필드가 삐져나가지 않도록 반응형 처리 */
+#hud, #field, #controls {
+  width: 95vw;
+  max-width: 820px;
+}
+
+.modal-content {
+  width: 95vw;
+  max-width: 820px;
+  max-height: 90vh;
+}
+
+/* 터치 시 브라우저 기본 스크롤/새로고침 방지 (게임 조작감 향상) */
+#field, .pokemon {
+  touch-action: none;
+}
+
+/* 도감 그리드: 마우스로 잡고 끌 수 있는 그랩 커서 & 모바일 부드러운 스크롤 */
+.pokedex-grid {
+  cursor: grab;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pokedex-grid:active {
+  cursor: grabbing;
+}
+
+/* 모바일 전용 폰트 및 모달 크기 미세조정 */
+@media (max-width: 600px) {
+  #hud {
+    padding: 10px 14px;
+    font-size: 0.95rem;
+  }
+  .hud-btn {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+  .detail-body {
+    flex-direction: column;
+    padding: 16px;
+    gap: 14px;
+  }
+  .detail-visual img {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+/* 1~9세대 가로 탭 바 마우스 드래그 & 스크롤바 숨김 */
+.gen-tabs {
+  cursor: grab;
+  scrollbar-width: none; /* 파이어폭스 스크롤바 숨김 */
+}
+.gen-tabs::-webkit-scrollbar {
+  display: none; /* 크롬/사파리 스크롤바 숨김 */
+}
+.gen-tabs:active {
+  cursor: grabbing;
+}
+
+/* 도감 포켓몬 유령 이미지 드래그 원천 차단 */
+.dex-card, .dex-card * {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
+.dex-card img {
+  pointer-events: none; /* 마우스 드래그가 이미지에 걸리지 않고 배경으로 부드럽게 통과! */
+}
+
+/* ================= ⚖️ 비상업적 면책 조항 스타일 ================= */
+#disclaimer-footer {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #565f89;
+  line-height: 1.5;
+  pointer-events: none;
+}
+
+.disclaimer-card {
+  border-color: #414868 !important;
+  background: rgba(26, 27, 38, 0.6) !important;
+}
