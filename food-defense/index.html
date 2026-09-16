@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COMMAND KITCHEN TYCOON</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="game-container">
+    <!-- 좌측 레시피 북 -->
+    <div id="sidebar">
+      <div class="sidebar-title">
+        <span>MENU & TIER</span>
+        <span style="font-size:11px; color:#8395a7;">STATUS</span>
+      </div>
+      <div id="recipes-list"></div>
+    </div>
+
+    <!-- 중앙 메인 필드 -->
+    <div id="playfield">
+      <div id="flash-overlay"></div>
+
+      <div id="hud">
+        <div class="hud-stat">SCORE: <span id="score" style="color:#79f7ff;">0</span></div>
+        <div class="hud-stat">COMBO: <span id="combo" style="color:#ffcc00;">0x</span></div>
+        <div class="hud-stat">KITCHEN HP: <span id="hearts">❤️❤️❤️❤️❤️</span></div>
+      </div>
+
+      <div id="danger-line"></div>
+      <div id="danger-text">⚠️ DEFENSE LINE ⚠️</div>
+
+      <div id="kitchen-counter">
+        <span style="font-size: 13px; font-weight:800; color:#ffcc00; letter-spacing: 0.5px;">COMMAND:</span>
+        <div id="input-buffer">
+          <span style="color: #64748b; font-size: 13px;">커맨드 입력 후 [SPACE] 서빙</span>
+        </div>
+      </div>
+
+      <!-- 스타트 화면 -->
+      <div id="start-screen" class="overlay-screen">
+        <div class="overlay-title">COMMAND KITCHEN</div>
+        <div class="overlay-desc">
+          ✨ <b>1~4키 커맨드 서빙 디펜스!</b><br><br>
+          🔥 <b>불지옥 음식:</b> 붉은 화염을 뿜으며 초고속 급발진 낙하!<br>
+          🍱 <b>2단 세트 손님:</b> 커맨드를 연속 2번 서빙해야 만족!<br>
+          👿 <b>진상 손님:</b> 1줄 8단 콤보로 퇴치하고 HP 1칸 회복!
+        </div>
+        <button class="action-btn" id="start-btn">OPEN KITCHEN (START)</button>
+      </div>
+
+      <!-- 게임오버 화면 -->
+      <div id="game-over-screen" class="overlay-screen" style="display:none;">
+        <div class="overlay-title" style="color:#ff4757;">💥 ORDER OVERLOAD!</div>
+        <div class="overlay-desc">
+          주문 폭주로 주방 방어선이 마비되었습니다!<br>
+          FINAL SCORE: <b id="final-score" style="color:#ffcc00; font-size: 24px;">0</b>
+        </div>
+        <button class="action-btn" id="restart-btn">TRY AGAIN</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

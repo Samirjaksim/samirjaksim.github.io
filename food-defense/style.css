@@ -1,0 +1,507 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  background: #07090e;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+#game-container {
+  width: 1060px;
+  height: 720px;
+  background: #0f121a;
+  border: 3px solid #ffcc00;
+  border-radius: 18px;
+  box-shadow: 0 0 50px rgba(255, 204, 0, 0.25);
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 좌측 족보 */
+#sidebar {
+  width: 250px;
+  background: #090b12;
+  border-right: 2px solid #1a2030;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+}
+
+#sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+#sidebar::-webkit-scrollbar-thumb {
+  background: #22293a;
+  border-radius: 3px;
+}
+
+.sidebar-title {
+  font-size: 14px;
+  font-weight: 900;
+  color: #ffcc00;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px dashed #1a2030;
+  padding-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.tier-group-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: #79f7ff;
+  margin-top: 5px;
+  letter-spacing: 0.5px;
+}
+
+.recipe-card {
+  background: #131722;
+  border: 1px solid #1f2738;
+  border-radius: 6px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.recipe-card.locked {
+  opacity: 0.2;
+  filter: grayscale(1);
+}
+
+/* 중앙 게임 필드 */
+#playfield {
+  flex: 1;
+  position: relative;
+  background: radial-gradient(circle at center, #151926 0%, #08090f 100%);
+  overflow: hidden;
+}
+
+/* 상단 HUD */
+#hud {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 600;
+  font-weight: bold;
+}
+
+.hud-stat {
+  background: rgba(9, 11, 17, 0.92);
+  border: 1px solid #1f2738;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#hearts {
+  color: #ff4757;
+  letter-spacing: 2px;
+  font-size: 15px;
+}
+
+/* 주문 말풍선 엔티티 */
+.order-entity {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.order-bubble {
+  background: #ffffff;
+  color: #111;
+  padding: 6px 12px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.65);
+  border: 2px solid #ffcc00;
+  min-width: 90px;
+  transition: transform 0.15s ease-out;
+}
+
+.order-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #111;
+}
+
+.order-header .emoji {
+  font-size: 19px;
+}
+
+.order-command {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  white-space: nowrap;
+}
+
+/* 고대비 꽉 찬 삼각 키캡 */
+.mini-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #161a25;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 4px;
+  box-shadow: 0 2px 0 #0a0c12;
+  border: 1px solid #333d56;
+  line-height: 1.1;
+}
+
+.mini-key.left  { color: #00f2fe; border-color: #00f2fe; }
+.mini-key.right { color: #ff9f43; border-color: #ff9f43; }
+.mini-key.up    { color: #54a0ff; border-color: #54a0ff; }
+.mini-key.down  { color: #ff5252; border-color: #ff5252; }
+.mini-key.space {
+  background: #ffd32a;
+  color: #111;
+  border-color: #e5b810;
+  box-shadow: 0 2px 0 #9c7b05;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+}
+
+/* 🔥 1. 불지옥 음식 (타오르는 붉은 화염) */
+.order-entity.hellfire .order-bubble {
+  border: 2px solid #ff3f34;
+  background: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%);
+  box-shadow: 0 0 20px rgba(255, 63, 52, 0.95), 0 0 35px rgba(255, 159, 26, 0.5);
+  animation: hellfireThrob 0.3s infinite alternate;
+}
+
+@keyframes hellfireThrob {
+  0% { transform: scale(1); filter: drop-shadow(0 0 2px #ff3f34); }
+  100% { transform: scale(1.08); filter: drop-shadow(0 0 10px #ff9f1a); }
+}
+
+.hellfire-badge {
+  background: linear-gradient(45deg, #ff3838, #ff9f1a);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  padding: 1px 5px;
+  border-radius: 4px;
+  letter-spacing: -0.5px;
+}
+
+/* ⚡ 2. EMP 폭탄 (칠흑의 블랙 배경 + 황금빛 레이저 광선 오라) */
+.order-entity.bomb .order-bubble {
+  border: 3px solid #ffd32a;
+  background: #141208;
+  color: #fff;
+  box-shadow: 0 0 25px rgba(255, 211, 42, 0.95), 0 0 45px rgba(255, 177, 43, 0.6);
+  animation: bombRayThrob 0.4s infinite alternate;
+  padding: 7px 14px;
+}
+
+@keyframes bombRayThrob {
+  0% { transform: scale(1); filter: drop-shadow(0 0 3px #ffd32a); }
+  100% { transform: scale(1.06); filter: drop-shadow(0 0 12px #ff9f1a); }
+}
+
+.order-entity.bomb .order-header {
+  color: #ffd32a;
+}
+
+.bomb-badge {
+  background: linear-gradient(45deg, #ffd32a, #ff9f1a);
+  color: #111;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+/* 🍱 3. 세트 손님 */
+.order-entity.double .order-bubble {
+  border: 2px solid #10ac84;
+  background: #f0fff4;
+  box-shadow: 5px 5px 0 #05c46b, 9px 9px 0 #0be881, 0 8px 20px rgba(0,0,0,0.5);
+}
+
+.double-badge {
+  background: #10ac84;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.next-dish-hint {
+  font-size: 10px;
+  color: #04724d;
+  font-weight: 800;
+  border-top: 1px dashed #a8e6cf;
+  padding-top: 3px;
+  width: 100%;
+  text-align: center;
+}
+
+/* 👿 4. 진상 손님 */
+.order-entity.vip .order-bubble {
+  border: 3px solid #a55eea;
+  background: #171124;
+  color: #fff;
+  box-shadow: 0 0 25px rgba(165, 94, 234, 0.9);
+  animation: vipPulse 0.45s infinite alternate;
+  padding: 7px 14px;
+}
+
+@keyframes vipPulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.05); }
+}
+
+.order-entity.vip .order-header {
+  color: #ffcc00;
+}
+
+.vip-badge {
+  background: #a55eea;
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 900;
+}
+
+/* 위험 경계선 */
+#danger-line {
+  position: absolute;
+  bottom: 85px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: repeating-linear-gradient(90deg, #ff4757, #ff4757 10px, transparent 10px, transparent 20px);
+  box-shadow: 0 0 10px rgba(255, 71, 87, 0.6);
+  z-index: 550;
+}
+
+#danger-text {
+  position: absolute;
+  right: 12px;
+  bottom: 90px;
+  font-size: 11px;
+  font-weight: bold;
+  color: #ff4757;
+  letter-spacing: 1px;
+  z-index: 550;
+}
+
+/* 하단 조리대 */
+#kitchen-counter {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 82px;
+  background: #090b12;
+  border-top: 2px solid #1a2030;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 0 16px;
+  z-index: 600;
+}
+
+#input-buffer {
+  min-width: 440px;
+  max-width: 560px;
+  height: 48px;
+  background: #050609;
+  border: 2px solid #242c3f;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 12px;
+  overflow-x: auto;
+}
+
+.current-key {
+  font-size: 13px;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 4px;
+  animation: popIn 0.08s ease-out;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.7); }
+  100% { transform: scale(1); }
+}
+
+/* 플래시 화면 */
+#flash-overlay {
+  position: absolute;
+  inset: 0;
+  background: white;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 700;
+}
+
+.flash-active {
+  animation: flashBang 0.4s ease-out;
+}
+
+@keyframes flashBang {
+  0% { opacity: 0.85; }
+  100% { opacity: 0; }
+}
+
+/* 오버레이 화면 */
+.overlay-screen {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 8, 12, 0.95);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999 !important;
+  text-align: center;
+  padding: 20px;
+}
+
+.overlay-title {
+  font-size: 34px;
+  color: #ffcc00;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  margin-bottom: 12px;
+}
+
+.overlay-desc {
+  font-size: 14px;
+  color: #cbd5e1;
+  line-height: 1.6;
+  max-width: 540px;
+  margin-bottom: 22px;
+}
+
+.action-btn {
+  background: #ffcc00;
+  color: #111;
+  border: none;
+  padding: 12px 32px;
+  font-size: 16px;
+  font-weight: 800;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 204, 0, 0.35);
+  transition: 0.12s transform;
+}
+
+.action-btn:hover {
+  transform: scale(1.05);
+}
+
+.floating-text {
+  position: absolute;
+  font-size: 16px;
+  font-weight: 900;
+  pointer-events: none;
+  animation: floatUp 0.9s forwards ease-out;
+  z-index: 800;
+}
+
+@keyframes floatUp {
+  0% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -45px) scale(1.15); opacity: 0; }
+}
+
+.screen-shake {
+  animation: shake 0.25s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-3px, 0, 0); }
+  30%, 70% { transform: translate3d(5px, 0, 0); }
+  50% { transform: translate3d(-5px, 0, 0); }
+}
+
+/* ❄️ 냉동 음식 (얼음 프로스트 스타일) */
+.order-entity.frozen .order-bubble {
+  border: 2px solid #70a1ff;
+  background: linear-gradient(135deg, #f1f8ff 0%, #d8ecff 100%);
+  box-shadow: 0 0 20px rgba(112, 161, 255, 0.85);
+  animation: frostPulse 0.5s infinite alternate;
+}
+
+@keyframes frostPulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 3px #70a1ff); }
+  100% { transform: scale(1.06); filter: drop-shadow(0 0 10px #1e90ff); }
+}
+
+.frozen-badge {
+  background: linear-gradient(45deg, #1e90ff, #70a1ff);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.ice-key {
+  background: #1e2738 !important;
+  color: #70a1ff !important;
+  border: 1px solid #70a1ff !important;
+  box-shadow: 0 2px 0 #0d131d !important;
+  font-size: 9px !important;
+  padding: 2px 5px !important;
+}
+
+.ice-key.broken {
+  opacity: 0.25;
+  filter: grayscale(1);
+  text-decoration: line-through;
+}
+
+.order-entity.thawed .order-bubble {
+  border: 2px solid #0984e3;
+  background: #f0f8ff;
+  box-shadow: 0 0 16px rgba(9, 132, 227, 0.7);
+}
