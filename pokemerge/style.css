@@ -464,13 +464,21 @@ body {
 
 .floating-msg {
   position: absolute;
+  left: 50% !important;
+  top: 35% !important;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
   color: #7dcfff;
   font-weight: 800;
-  font-size: 16px;
+  font-size: 15px;
+  background: rgba(26, 27, 38, 0.92);
+  border: 1.5px solid #7dcfff;
+  border-radius: 20px;
+  padding: 8px 18px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
   pointer-events: none;
-  animation: floatUp 1.2s ease-out forwards;
-  z-index: 1000;
-  text-shadow: 0 2px 5px #000;
+  z-index: 10000;
+  animation: floatUpToast 1.2s ease-out forwards;
 }
 
 /* 모달 공통 */
@@ -1208,4 +1216,11 @@ body {
   .rule-text p {
     font-size: 0.8rem;
   }
+}
+
+@keyframes floatUpToast {
+  0% { opacity: 0; transform: translate(-50%, -30%); }
+  15% { opacity: 1; transform: translate(-50%, -50%); }
+  85% { opacity: 1; transform: translate(-50%, -50%); }
+  100% { opacity: 0; transform: translate(-50%, -80%); }
 }
