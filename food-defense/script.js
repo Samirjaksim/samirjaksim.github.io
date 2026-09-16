@@ -9,11 +9,11 @@ const DIFFICULTIES = {
     desc: '4키 요리 제외, 얼음 2타, 6라이프의 힐링 주방!',
     INITIAL_LIVES: 6,         // ❤️ 6개
     MAX_RECIPE_TIER: 3,       // 💡 4티어 요리 과감히 제외!
-    BASE_SPEED: 36,
+    BASE_SPEED: 28,
     MAX_SPEED_BONUS: 40,
-    SPAWN_INTERVAL_BASE: 2200,
-    SPAWN_INTERVAL_MIN: 1100,
-    HELLFIRE_SPEED_MULT: 1.5,
+    SPAWN_INTERVAL_BASE: 2800,
+    SPAWN_INTERVAL_MIN: 1400,
+    HELLFIRE_SPEED_MULT: 1.6,
     DOUBLE_SPEED_MULT: 0.6,
     FROZEN_SPEED_MULT: 0.8,
     BOMB_SPEED: 26,
@@ -31,18 +31,18 @@ const DIFFICULTIES = {
     INITIAL_LIVES: 5,         // ❤️ 5개
     MAX_RECIPE_TIER: 3,       // 💡 4티어 요리 과감히 제외!
     // 잡다한 속도/스폰 세팅은 하드와 100% 동일하게 일치!
-    BASE_SPEED: 44,
-    MAX_SPEED_BONUS: 55,
-    SPAWN_INTERVAL_BASE: 1850,
-    SPAWN_INTERVAL_MIN: 850,
-    HELLFIRE_SPEED_MULT: 1.8,
+    BASE_SPEED: 36,
+    MAX_SPEED_BONUS: 48,
+    SPAWN_INTERVAL_BASE: 2400,
+    SPAWN_INTERVAL_MIN: 1200,
+    HELLFIRE_SPEED_MULT: 1.7,
     DOUBLE_SPEED_MULT: 0.6,
     FROZEN_SPEED_MULT: 0.8,
     BOMB_SPEED: 33,
     VIP_SPEED: 28,
     FROZEN_HITS: 3,
-    BOMB_KEY_COUNT: 6,
-    VIP_KEY_COUNT: 8,
+    BOMB_KEY_COUNT: 5,
+    VIP_KEY_COUNT: 7,
     MAX_SET_SIZE: 2
   },
   HARD: {
@@ -52,8 +52,8 @@ const DIFFICULTIES = {
     desc: '16종 요리 완비, 4라이프의 긴장감 넘치는 매운맛 주방!',
     INITIAL_LIVES: 4,         // ❤️ 4개로 조정!
     MAX_RECIPE_TIER: 4,       // 16종 전체 해금
-    BASE_SPEED: 44,
-    MAX_SPEED_BONUS: 55,
+    BASE_SPEED: 42,
+    MAX_SPEED_BONUS: 54,
     SPAWN_INTERVAL_BASE: 1850,
     SPAWN_INTERVAL_MIN: 850,
     HELLFIRE_SPEED_MULT: 1.8,
@@ -73,8 +73,8 @@ const DIFFICULTIES = {
     desc: '가끔 3단 세트, 10단 진상, 8단 EMP, 3라이프 극한 지옥!',
     INITIAL_LIVES: 3,         // ❤️ 3개로 조정!
     MAX_RECIPE_TIER: 4,       // 16종 전체 해금
-    BASE_SPEED: 50,
-    MAX_SPEED_BONUS: 65,
+    BASE_SPEED: 52,
+    MAX_SPEED_BONUS: 64,
     SPAWN_INTERVAL_BASE: 1600,
     SPAWN_INTERVAL_MIN: 750,
     HELLFIRE_SPEED_MULT: 2.0,
