@@ -6,7 +6,7 @@ const DIFFICULTIES = {
     name: 'EASY',
     badge: '[EASY]',
     badgeColor: '#2ed573',
-    desc: '4키 요리 제외, 얼음 2타, 6라이프의 힐링 주방!',
+    desc: '4키 요리 제외, 빠른 해동, 6라이프의 느긋한 주방!',
     INITIAL_LIVES: 6,         // ❤️ 6개
     MAX_RECIPE_TIER: 3,       // 💡 4티어 요리 과감히 제외!
     BASE_SPEED: 28,
@@ -27,10 +27,9 @@ const DIFFICULTIES = {
     name: 'NORMAL',
     badge: '[NORMAL]',
     badgeColor: '#54a0ff',
-    desc: '4키 요리 제외, 하드와 동일한 스피드의 5라이프 표준 주방!',
+    desc: '4키 요리 제외, 5라이프의 표준 주방!',
     INITIAL_LIVES: 5,         // ❤️ 5개
     MAX_RECIPE_TIER: 3,       // 💡 4티어 요리 과감히 제외!
-    // 잡다한 속도/스폰 세팅은 하드와 100% 동일하게 일치!
     BASE_SPEED: 36,
     MAX_SPEED_BONUS: 48,
     SPAWN_INTERVAL_BASE: 2400,
@@ -49,7 +48,7 @@ const DIFFICULTIES = {
     name: 'HARD',
     badge: '[HARD]',
     badgeColor: '#ff9f43',
-    desc: '16종 요리 완비, 4라이프의 긴장감 넘치는 매운맛 주방!',
+    desc: '16종 요리 완비, 4라이프의 긴장감 넘치는 주방!',
     INITIAL_LIVES: 4,         // ❤️ 4개로 조정!
     MAX_RECIPE_TIER: 4,       // 16종 전체 해금
     BASE_SPEED: 42,
@@ -70,7 +69,7 @@ const DIFFICULTIES = {
     name: 'SUPER_HARD',
     badge: '[SUPER HARD]',
     badgeColor: '#ff4757',
-    desc: '가끔 3단 세트, 10단 진상, 8단 EMP, 3라이프 극한 지옥!',
+    desc: '3단 세트 메뉴, 극악무도한 진상, 3라이프 극한 지옥!',
     INITIAL_LIVES: 3,         // ❤️ 3개로 조정!
     MAX_RECIPE_TIER: 4,       // 16종 전체 해금
     BASE_SPEED: 52,
