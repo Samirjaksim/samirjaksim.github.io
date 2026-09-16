@@ -7,5 +7,5 @@
 * Pokémon 및 포켓몬과 관련된 모든 이름, 캐릭터 디자인, 스프라이트, 사운드의 지적 재산권은 **Nintendo / Game Freak / Creatures Inc. / The Pokémon Company**에 귀속됩니다.
 * This project is a non-commercial, fan-made tribute created for educational and entertainment purposes only. No copyright infringement is intended.
 
-### 디맥 레벨 업&다운
+### DJMAX 레벨 업&다운 게임
 * 본 사이트는 게임 DJMAX RESPECT V의 팬사이트이며, 사이트 내 사용된 모든 게임 컨텐츠(이미지, 문구 등)의 저작권은 NEOWIZ 사에 있습니다.
