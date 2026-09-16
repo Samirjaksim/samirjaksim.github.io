@@ -1,29 +1,86 @@
-<html>
+<!DOCTYPE html>
+<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Files</title>
+    <title>미니게임 아케이드 | Mini Game Hub</title>
+    <!-- 구글 폰트 (Pretendard 스타일) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-    <header>
-        <h1>나만의 웹 페이지 (Gemini 사용)</h1>
-    </header>
-    <main>
-        <section id="file-list">
-            <h2>목록</h2>
-            <ul>
-                <li><a href="comic-creator/index.html">만화 제작기 (야매)</a></li>
-                <li><a href="djmax-up-and-down/index.html">디맥 레벨 업&다운</a></li>
-                <li><a href="djmax-tier-maker/index.html">디맥 티어 메이커</a></li>
-                <li><a href="pokemerge/index.html">포켓몬 합치기</a></li>
-                <li><a href="food-defense/index.html">음식 랜덤 디펜스</a></li>
-            </ul>
-        </section>
-    </main>
-    <footer>
-        <p>© 2025 나만의 웹 페이지</p>
-    </footer>
+    <!-- 은은하게 빛나는 네온 배경 오라 -->
+    <div class="glow-bg"></div>
+
+    <div class="container">
+        <!-- 상단 헤더 영역 -->
+        <header class="hub-header">
+            <div class="badge">🎮 MINI GAME ARCADE</div>
+            <h1>심심풀이 웹 미니게임 모음집</h1>
+            <p>모든 게임은 AI가 다 코딩해줬습니다.</p>
+        </header>
+
+        <!-- 게임 카드 그리드 -->
+        <main class="game-grid">
+            <!-- 1. 포켓몬 합치기 -->
+            <article class="game-card">
+                <div class="card-thumb">
+                    <img src="images/pokemon.png" alt="포켓몬 합치기 썸네일" class="thumb-img">
+                    <span class="category-tag">심심풀이</span>
+                </div>
+                <div class="card-body">
+                    <h3>포켓몬 합치기</h3>
+                    <p>귀여운 포켓몬들을 합쳐서 도감을 채워보자!</p>
+                    <a href="pokemerge/index.html" class="play-btn">
+                        <span>플레이하기</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                </div>
+            </article>
+
+            <!-- 2. 음식 랜덤 디펜스 -->
+            <article class="game-card featured">
+                <div class="card-thumb">
+                    <img src="images/food.png" alt="음식 랜덤 디펜스 썸네일" class="thumb-img">
+                    <span class="category-tag">키보드 액션</span>
+                </div>
+                <div class="card-body">
+                    <h3>음식 랜덤 디펜스</h3>
+                    <p>시시각각 몰려오는 손님들을 커맨드 조합으로 전부 막아내자!</p>
+                    <a href="food-defense/index.html" class="play-btn">
+                        <span>플레이하기</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                </div>
+            </article>
+
+            <!-- 3. 디맥 레벨 업&다운 -->
+            <article class="game-card">
+                <div class="card-thumb">
+                    <!-- 💡 썸네일 이미지 경로 (없으면 기본 어두운 배경으로 깔끔하게 유지돼!) -->
+                    <img src="images/djmax.png" alt="디맥 레벨 업&다운 썸네일" class="thumb-img">
+                    <span class="category-tag">퀴즈</span>
+                </div>
+                <div class="card-body">
+                    <h3>디맥 레벨 업&다운</h3>
+                    <p>DJMAX 곡의 난이도를 맞춰라! 어느 쪽이 더 높은 레벨일까?</p>
+                    <a href="djmax-up-and-down/index.html" class="play-btn">
+                        <span>플레이하기</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                </div>
+            </article>
+        </main>
+
+        <!-- 하단 푸터 -->
+        <footer class="hub-footer">
+            <p>© 2026 Powered by Gemini</p>
+        </footer>
+    </div>
+</body>
+
 </html>
