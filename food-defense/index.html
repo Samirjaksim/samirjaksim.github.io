@@ -2,14 +2,14 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>COMMAND KITCHEN TYCOON</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <div id="game-container">
-    <!-- 좌측 레시피 북 -->
+    <!-- 좌측 레시피 북 (PC 전용) -->
     <div id="sidebar">
       <div class="sidebar-title">
         <span>MENU & TIER</span>
@@ -18,46 +18,80 @@
       <div id="recipes-list"></div>
     </div>
 
-    <!-- 중앙 메인 필드 -->
-    <div id="playfield">
-      <div id="flash-overlay"></div>
+    <!-- 메인 주방 필드 -->
+    <div id="playfield-container">
+      <div id="playfield">
+        <div id="flash-overlay"></div>
 
-      <div id="hud">
-        <div class="hud-stat">SCORE: <span id="score" style="color:#79f7ff;">0</span></div>
-        <div class="hud-stat">COMBO: <span id="combo" style="color:#ffcc00;">0x</span></div>
-        <div class="hud-stat">KITCHEN HP: <span id="hearts">❤️❤️❤️❤️❤️</span></div>
+        <div id="hud">
+          <div class="hud-stat">SCORE: <span id="score" style="color:#79f7ff;">0</span></div>
+          <div class="hud-stat"><span id="diff-badge" style="color:#ff9f43; font-size:11px; font-weight:900;">[HARD]</span> <span id="combo" style="color:#ffcc00; margin-left:4px;">0x</span></div>
+          <div class="hud-stat"><span id="hearts">❤️❤️❤️❤️</span></div>
+        </div>
+
+        <div id="danger-line"></div>
+        <div id="danger-text">⚠️ DEFENSE LINE ⚠️</div>
+
+        <!-- 스타트 화면 -->
+        <div id="start-screen" class="overlay-screen">
+          <div class="overlay-title">COMMAND KITCHEN</div>
+          <div class="overlay-desc">
+            ✨ <b>실시간 커맨드 서빙 디펜스!</b><br><br>
+            PC는 <b>방향키와 [SPACE]</b>로,<br>
+            모바일은 <b>하단 십자키와 [SPACE]</b>로 서빙하세요!<br><br>
+            ❄️ <b>냉동:</b> [SPACE] 연타 해동 후 레시피 조리!<br>
+            ⚡ <b>EMP 폭탄:</b> 전탄 폭발 올킬!
+          </div>
+
+          <!-- 시작 버튼 -->
+          <button class="action-btn" id="start-btn">주방 오픈 (START)</button>
+
+          <!-- 🎛️ 난이도 선택 패널 -->
+          <div id="difficulty-selector">
+            <div class="diff-title">난이도 선택 (DIFFICULTY)</div>
+            <div class="diff-btn-group">
+              <button class="diff-btn easy" data-diff="EASY">이지</button>
+              <button class="diff-btn normal" data-diff="NORMAL">노말</button>
+              <button class="diff-btn hard active" data-diff="HARD">하드</button>
+              <button class="diff-btn super" data-diff="SUPER_HARD">슈퍼하드</button>
+            </div>
+            <div id="diff-desc">16종 요리 완비, 4라이프의 긴장감 넘치는 매운맛 주방!</div>
+          </div>
+        </div>
+
+        <!-- 게임오버 화면 -->
+        <div id="game-over-screen" class="overlay-screen" style="display:none;">
+          <div class="overlay-title" style="color:#ff4757;">💥 ORDER OVERLOAD!</div>
+          <div class="overlay-desc">
+            주문 폭주로 주방 방어선이 마비되었습니다!<br>
+            <span id="game-over-diff" style="color:#79f7ff; font-weight:800;">[HARD]</span> FINAL SCORE: <b id="final-score" style="color:#ffcc00; font-size: 24px;">0</b>
+          </div>
+          <button class="action-btn" id="restart-btn">TRY AGAIN</button>
+        </div>
       </div>
 
-      <div id="danger-line"></div>
-      <div id="danger-text">⚠️ DEFENSE LINE ⚠️</div>
-
+      <!-- 하단 조작 바 -->
       <div id="kitchen-counter">
-        <span style="font-size: 13px; font-weight:800; color:#ffcc00; letter-spacing: 0.5px;">COMMAND:</span>
         <div id="input-buffer">
-          <span style="color: #64748b; font-size: 13px;">커맨드 입력 후 [SPACE] 서빙</span>
+          <span style="color: #64748b; font-size: 13px;">커맨드 입력 후 [SPACE] 서빙!</span>
         </div>
-      </div>
 
-      <!-- 스타트 화면 -->
-      <div id="start-screen" class="overlay-screen">
-        <div class="overlay-title">COMMAND KITCHEN</div>
-        <div class="overlay-desc">
-          ✨ <b>1~4키 커맨드 서빙 디펜스!</b><br><br>
-          🔥 <b>불지옥 음식:</b> 붉은 화염을 뿜으며 초고속 급발진 낙하!<br>
-          🍱 <b>2단 세트 손님:</b> 커맨드를 연속 2번 서빙해야 만족!<br>
-          👿 <b>진상 손님:</b> 1줄 8단 콤보로 퇴치하고 HP 1칸 회복!
-        </div>
-        <button class="action-btn" id="start-btn">OPEN KITCHEN (START)</button>
-      </div>
+        <!-- 🕹️ 모바일 완전 대칭 크로스 패드 -->
+        <div id="touch-controller">
+          <div class="dpad-grid">
+            <div class="dpad-empty"></div>
+            <button class="dpad-btn up" data-key="ArrowUp">▲</button>
+            <div class="dpad-empty"></div>
 
-      <!-- 게임오버 화면 -->
-      <div id="game-over-screen" class="overlay-screen" style="display:none;">
-        <div class="overlay-title" style="color:#ff4757;">💥 ORDER OVERLOAD!</div>
-        <div class="overlay-desc">
-          주문 폭주로 주방 방어선이 마비되었습니다!<br>
-          FINAL SCORE: <b id="final-score" style="color:#ffcc00; font-size: 24px;">0</b>
+            <button class="dpad-btn left" data-key="ArrowLeft">◀</button>
+            <button class="dpad-btn space" data-key="Space">SPACE</button>
+            <button class="dpad-btn right" data-key="ArrowRight">▶</button>
+
+            <div class="dpad-empty"></div>
+            <button class="dpad-btn down" data-key="ArrowDown">▼</button>
+            <div class="dpad-empty"></div>
+          </div>
         </div>
-        <button class="action-btn" id="restart-btn">TRY AGAIN</button>
       </div>
     </div>
   </div>
