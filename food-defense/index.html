@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>COMMAND KITCHEN TYCOON</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -43,10 +44,12 @@
             ⚡ <b>EMP 폭탄:</b> 전탄 폭발 올킬!
           </div>
 
-          <!-- 시작 버튼 -->
-          <button class="action-btn" id="start-btn">주방 오픈 (START)</button>
+          <div class="main-btn-group">
+            <button class="action-btn" id="start-btn">주방 오픈 (START)</button>
+            <button class="action-btn rank-btn" id="main-rank-btn">🏆 랭킹 보기</button>
+          </div>
 
-          <!-- 🎛️ 난이도 선택 패널 -->
+          <!-- 난이도 선택 패널 -->
           <div id="difficulty-selector">
             <div class="diff-title">난이도 선택 (DIFFICULTY)</div>
             <div class="diff-btn-group">
@@ -59,14 +62,52 @@
           </div>
         </div>
 
-        <!-- 게임오버 화면 -->
+        <!-- 🏆 메인 화면용 전체 랭킹 팝업 창 (난이도별 탭 탑재!) -->
+        <div id="rank-modal" class="overlay-screen" style="display:none;">
+          <div class="overlay-title" style="color:#ffd32a; font-size:24px; margin-bottom:6px;">🏆 명예의 전당 (TOP 10)</div>
+          
+          <div id="main-leaderboard-box">
+            <!-- 🎛️ 모달 랭킹 난이도 탭 -->
+            <div class="lb-tab-group" id="modal-tab-group">
+              <button class="lb-tab active" data-tab="ALL">전체</button>
+              <button class="lb-tab" data-tab="EASY">이지</button>
+              <button class="lb-tab" data-tab="NORMAL">노말</button>
+              <button class="lb-tab" data-tab="HARD">하드</button>
+              <button class="lb-tab" data-tab="SUPER_HARD">슈하</button>
+            </div>
+            <div id="main-leaderboard-list">불러오는 중...</div>
+          </div>
+          <button class="action-btn" id="close-rank-btn" style="margin-top:12px; padding:7px 24px;">닫기 (CLOSE)</button>
+        </div>
+
+        <!-- 🏆 게임오버 화면 (난이도별 탭 탑재!) -->
         <div id="game-over-screen" class="overlay-screen" style="display:none;">
           <div class="overlay-title" style="color:#ff4757;">💥 ORDER OVERLOAD!</div>
-          <div class="overlay-desc">
+          <div class="overlay-desc" style="margin-bottom:8px;">
             주문 폭주로 주방 방어선이 마비되었습니다!<br>
-            <span id="game-over-diff" style="color:#79f7ff; font-weight:800;">[HARD]</span> FINAL SCORE: <b id="final-score" style="color:#ffcc00; font-size: 24px;">0</b>
+            <span id="game-over-diff" style="color:#79f7ff; font-weight:800;">[HARD]</span> FINAL SCORE: <b id="final-score" style="color:#ffcc00; font-size: 22px;">0</b>
           </div>
-          <button class="action-btn" id="restart-btn">TRY AGAIN</button>
+
+          <!-- 닉네임 등록 폼 -->
+          <div id="ranking-form">
+            <input type="text" id="player-nickname" placeholder="닉네임 (최대 6자)" maxlength="6">
+            <button id="submit-score-btn">등록</button>
+          </div>
+          <div id="ranking-msg"></div>
+
+          <!-- 게임오버 랭킹 리스트 -->
+          <div id="leaderboard-box">
+            <div class="lb-tab-group" id="gameover-tab-group">
+              <button class="lb-tab active" data-tab="ALL">전체</button>
+              <button class="lb-tab" data-tab="EASY">이지</button>
+              <button class="lb-tab" data-tab="NORMAL">노말</button>
+              <button class="lb-tab" data-tab="HARD">하드</button>
+              <button class="lb-tab" data-tab="SUPER_HARD">슈하</button>
+            </div>
+            <div id="leaderboard-list">불러오는 중...</div>
+          </div>
+
+          <button class="action-btn" id="restart-btn" style="margin-top:10px;">TRY AGAIN</button>
         </div>
       </div>
 
@@ -76,7 +117,6 @@
           <span style="color: #64748b; font-size: 13px;">커맨드 입력 후 [SPACE] 서빙!</span>
         </div>
 
-        <!-- 🕹️ 모바일 완전 대칭 크로스 패드 -->
         <div id="touch-controller">
           <div class="dpad-grid">
             <div class="dpad-empty"></div>

@@ -1,3 +1,17 @@
+const SUPABASE_CONFIG = {
+  URL: 'https://ehyoohvrykljwqvbozcx.supabase.co',
+  ANON_KEY: 'sb_publishable_8MztysupHRqfI6Aoo_zDsg_Cj0M46JI'
+};
+
+let supabaseClient = null;
+try {
+  if (window.supabase && SUPABASE_CONFIG.URL.startsWith('http')) {
+    supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.ANON_KEY);
+  }
+} catch (e) {
+  console.error("Supabase init error:", e);
+}
+
 /* ==========================================================================
    🎮 [주방장 전용 난이도 프리셋 & 글로벌 밸런스 제어판]
    ========================================================================== */
@@ -7,8 +21,8 @@ const DIFFICULTIES = {
     badge: '[EASY]',
     badgeColor: '#2ed573',
     desc: '4키 요리 제외, 빠른 해동, 6라이프의 느긋한 주방!',
-    INITIAL_LIVES: 6,         // ❤️ 6개
-    MAX_RECIPE_TIER: 3,       // 💡 4티어 요리 과감히 제외!
+    INITIAL_LIVES: 6,
+    MAX_RECIPE_TIER: 3,
     BASE_SPEED: 28,
     MAX_SPEED_BONUS: 40,
     SPAWN_INTERVAL_BASE: 2800,
@@ -18,9 +32,9 @@ const DIFFICULTIES = {
     FROZEN_SPEED_MULT: 0.8,
     BOMB_SPEED: 26,
     VIP_SPEED: 22,
-    FROZEN_HITS: 2,           // ❄️ 얼음 2타 해동!
-    BOMB_KEY_COUNT: 4,        // ⚡ EMP 4단
-    VIP_KEY_COUNT: 6,         // 👿 진상 6단
+    FROZEN_HITS: 2,
+    BOMB_KEY_COUNT: 4,
+    VIP_KEY_COUNT: 6,
     MAX_SET_SIZE: 2
   },
   NORMAL: {
@@ -28,8 +42,8 @@ const DIFFICULTIES = {
     badge: '[NORMAL]',
     badgeColor: '#54a0ff',
     desc: '4키 요리 제외, 5라이프의 표준 주방!',
-    INITIAL_LIVES: 5,         // ❤️ 5개
-    MAX_RECIPE_TIER: 3,       // 💡 4티어 요리 과감히 제외!
+    INITIAL_LIVES: 5,
+    MAX_RECIPE_TIER: 3,
     BASE_SPEED: 36,
     MAX_SPEED_BONUS: 48,
     SPAWN_INTERVAL_BASE: 2400,
@@ -49,8 +63,8 @@ const DIFFICULTIES = {
     badge: '[HARD]',
     badgeColor: '#ff9f43',
     desc: '16종 요리 완비, 4라이프의 긴장감 넘치는 주방!',
-    INITIAL_LIVES: 4,         // ❤️ 4개로 조정!
-    MAX_RECIPE_TIER: 4,       // 16종 전체 해금
+    INITIAL_LIVES: 4,
+    MAX_RECIPE_TIER: 4,
     BASE_SPEED: 42,
     MAX_SPEED_BONUS: 54,
     SPAWN_INTERVAL_BASE: 1850,
@@ -70,8 +84,8 @@ const DIFFICULTIES = {
     badge: '[SUPER HARD]',
     badgeColor: '#ff4757',
     desc: '3단 세트 메뉴, 극악무도한 진상, 3라이프 극한 지옥!',
-    INITIAL_LIVES: 3,         // ❤️ 3개로 조정!
-    MAX_RECIPE_TIER: 4,       // 16종 전체 해금
+    INITIAL_LIVES: 3,
+    MAX_RECIPE_TIER: 4,
     BASE_SPEED: 52,
     MAX_SPEED_BONUS: 64,
     SPAWN_INTERVAL_BASE: 1600,
@@ -82,9 +96,9 @@ const DIFFICULTIES = {
     BOMB_SPEED: 36,
     VIP_SPEED: 32,
     FROZEN_HITS: 3,
-    BOMB_KEY_COUNT: 8,        // ⚡ EMP 8단
-    VIP_KEY_COUNT: 10,        // 👿 진상 10단 대마왕
-    MAX_SET_SIZE: 3           // 3단 세트 출현 가능
+    BOMB_KEY_COUNT: 8,
+    VIP_KEY_COUNT: 10,
+    MAX_SET_SIZE: 3
   }
 };
 
@@ -245,10 +259,14 @@ const Sound = {
 };
 
 /* ==========================================================================
-   🎮 게임 상태 및 활성 난이도
+   🎮 게임 상태 변수
    ========================================================================== */
 let selectedDifficulty = 'HARD';
 let activeDiff = DIFFICULTIES.HARD;
+
+// 🎛️ 랭킹 필터 탭 상태
+let currentModalTab = 'ALL';
+let currentGameOverTab = 'ALL';
 
 let isPlaying = false;
 let score = 0;
@@ -279,8 +297,20 @@ const finalScoreEl = document.getElementById('final-score');
 const gameOverDiffEl = document.getElementById('game-over-diff');
 const diffDescEl = document.getElementById('diff-desc');
 
+// 🏆 랭킹 관련 DOM
+const nicknameInput = document.getElementById('player-nickname');
+const submitScoreBtn = document.getElementById('submit-score-btn');
+const rankingMsg = document.getElementById('ranking-msg');
+const leaderboardListEl = document.getElementById('leaderboard-list');
+
+// 🏆 메인 랭킹 모달 DOM
+const mainRankBtn = document.getElementById('main-rank-btn');
+const rankModal = document.getElementById('rank-modal');
+const closeRankBtn = document.getElementById('close-rank-btn');
+const mainLeaderboardListEl = document.getElementById('main-leaderboard-list');
+
 /* ==========================================================================
-   🎛️ 난이도 선택 이벤트 리스너
+   🎛️ 난이도 선택 리스너
    ========================================================================== */
 document.querySelectorAll('.diff-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -288,16 +318,18 @@ document.querySelectorAll('.diff-btn').forEach(btn => {
     btn.classList.add('active');
     selectedDifficulty = btn.dataset.diff;
     activeDiff = DIFFICULTIES[selectedDifficulty];
-    diffDescEl.textContent = activeDiff.desc;
-    diffBadgeEl.textContent = activeDiff.badge;
-    diffBadgeEl.style.color = activeDiff.badgeColor;
+    if (diffDescEl) diffDescEl.textContent = activeDiff.desc;
+    if (diffBadgeEl) {
+      diffBadgeEl.textContent = activeDiff.badge;
+      diffBadgeEl.style.color = activeDiff.badgeColor;
+    }
     renderRecipeBook();
     Sound.keyPress();
   });
 });
 
 /* ==========================================================================
-   🖥️ UI 렌더링 (난이도별 허용 티어만 깔끔하게 렌더링!)
+   🖥️ UI 렌더링
    ========================================================================== */
 function renderRecipeBook() {
   if (!recipesListEl) return;
@@ -309,9 +341,7 @@ function renderRecipeBook() {
     { tier: 4, title: 'TIER 4 (4 KEYS)' }
   ];
 
-  // 💡 이지/노말에서는 4티어 요리를 족보에서도 깔끔히 제외!
   const allowedTiers = tiers.filter(t => t.tier <= activeDiff.MAX_RECIPE_TIER);
-
   allowedTiers.forEach(t => {
     const groupTitle = document.createElement('div');
     groupTitle.className = 'tier-group-title';
@@ -335,6 +365,7 @@ function renderRecipeBook() {
 }
 
 function renderInputBuffer() {
+  if (!inputBufferEl) return;
   if (inputBuffer.length === 0) {
     inputBufferEl.innerHTML = `<span style="color: #64748b; font-size: 13px;">커맨드 입력 후 [SPACE]!</span>`;
     return;
@@ -352,13 +383,16 @@ function renderInputBuffer() {
 }
 
 function updateHUD() {
-  scoreEl.textContent = score;
-  comboEl.textContent = `${combo}x`;
-  const safeLives = Math.max(0, Math.min(activeDiff.INITIAL_LIVES, lives));
-  heartsEl.textContent = '❤️'.repeat(safeLives);
+  if (scoreEl) scoreEl.textContent = score;
+  if (comboEl) comboEl.textContent = `${combo}x`;
+  if (heartsEl) {
+    const safeLives = Math.max(0, Math.min(activeDiff.INITIAL_LIVES, lives));
+    heartsEl.textContent = '❤️'.repeat(safeLives);
+  }
 }
 
 function showFloatingText(text, x, y, color = '#ffcc00') {
+  if (!playfield) return;
   const el = document.createElement('div');
   el.className = 'floating-text';
   el.style.left = `${x}px`;
@@ -370,15 +404,15 @@ function showFloatingText(text, x, y, color = '#ffcc00') {
 }
 
 function triggerScreenShake() {
+  if (!playfield) return;
   playfield.classList.add('screen-shake');
   setTimeout(() => playfield.classList.remove('screen-shake'), 250);
 }
 
 /* ==========================================================================
-   📦 주문 스폰 (이지/노말 4티어 제외 & 슈하 3단 1/3 조정)
+   📦 주문 스폰
    ========================================================================== */
 function getAvailableRecipes() {
-  // 💡 현재 난이도의 MAX_RECIPE_TIER 이하 요리만 출현!
   return ALL_RECIPES.filter(r => score >= r.unlockScore && r.tier <= activeDiff.MAX_RECIPE_TIER);
 }
 
@@ -556,7 +590,7 @@ function spawnOrder() {
     } else {
       const roll = Math.random();
 
-      // 3. 🍱 세트 손님 (슈퍼하드 3단 세트는 딱 1/3 확률로만 출현!)
+      // 3. 🍱 세트 손님
       if (roll < GLOBAL_CONFIG.CHANCE.DOUBLE && score >= GLOBAL_CONFIG.UNLOCK_REQ.DOUBLE_SCORE) {
         const isTriple = (activeDiff.MAX_SET_SIZE === 3 && Math.random() < 0.333);
         const subOrders = [pickSmartRecipe(), pickSmartRecipe()];
@@ -721,7 +755,7 @@ function gameLoop(now) {
 }
 
 /* ==========================================================================
-   🕹️ 조작 엔진 (지우기 키 없이 오직 스페이스로 털어내는 오락실 룰!)
+   🕹️ 조작 엔진
    ========================================================================== */
 function processInputKey(code) {
   if (!isPlaying) return;
@@ -947,7 +981,175 @@ function checkOverclockMilestone() {
 }
 
 /* ==========================================================================
-   🏁 게임 라이프사이클 (TRY AGAIN ➜ 선택된 난이도 유지하며 메인 복귀!)
+   🏆 [수파베이스 랭킹 - 🎛️ 난이도별 필터 쿼리 탑재]
+   ========================================================================== */
+async function fetchTopScores(limitCount = 5, diffFilter = 'ALL') {
+  if (!supabaseClient || SUPABASE_CONFIG.URL.includes('여기에')) {
+    return { data: null, error: 'NO_CONFIG' };
+  }
+  
+  let query = supabaseClient
+    .from('leaderboard')
+    .select('nickname, score, difficulty')
+    .order('score', { ascending: false })
+    .limit(limitCount);
+
+  // 💡 특정 난이도 탭 선택 시 해당 난이도만 쏙 골라서 조회!
+  if (diffFilter && diffFilter !== 'ALL') {
+    query = query.eq('difficulty', diffFilter);
+  }
+
+  return await query;
+}
+
+// 게임오버 화면 랭킹 렌더링
+async function loadLeaderboard(tab = currentGameOverTab) {
+  if (!leaderboardListEl) return;
+  leaderboardListEl.innerHTML = '랭킹 조회 중...';
+
+  const { data, error } = await fetchTopScores(5, tab);
+  if (error === 'NO_CONFIG') {
+    leaderboardListEl.innerHTML = `<span style="color:#8395a7; font-size:11px;">[안내] script.js 맨 위에 수파베이스 URL과 키를 입력하면 랭킹이 켜집니다!</span>`;
+    return;
+  }
+  if (error || !data) {
+    leaderboardListEl.innerHTML = `<span style="color:#ff4757; font-size:11px;">랭킹 불러오기 실패</span>`;
+    return;
+  }
+  if (data.length === 0) {
+    leaderboardListEl.innerHTML = '<span style="color:#8395a7; font-size:11px;">해당 난이도에 등록된 랭킹이 없습니다!</span>';
+    return;
+  }
+
+  leaderboardListEl.innerHTML = data.map((row, idx) => {
+    const rankClass = idx === 0 ? 'top1' : idx === 1 ? 'top2' : idx === 2 ? 'top3' : '';
+    const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}위`;
+    return `
+      <div class="lb-row ${rankClass}">
+        <span>${medal} ${row.nickname} <span style="font-size:10px; opacity:0.7;">[${row.difficulty}]</span></span>
+        <span>${row.score.toLocaleString()}P</span>
+      </div>
+    `;
+  }).join('');
+}
+
+// 🏆 메인 화면용 팝업 랭킹 렌더링
+async function loadMainLeaderboard(tab = currentModalTab) {
+  if (!mainLeaderboardListEl) return;
+  mainLeaderboardListEl.innerHTML = '명예의 전당 조회 중...';
+
+  const { data, error } = await fetchTopScores(10, tab);
+  if (error === 'NO_CONFIG') {
+    mainLeaderboardListEl.innerHTML = `<span style="color:#8395a7; font-size:12px;">[안내] script.js 맨 위에 수파베이스 URL과 키를 입력해 주세요!</span>`;
+    return;
+  }
+  if (error || !data) {
+    mainLeaderboardListEl.innerHTML = `<span style="color:#ff4757; font-size:12px;">명예의 전당을 불러오지 못했습니다.</span>`;
+    return;
+  }
+  if (data.length === 0) {
+    mainLeaderboardListEl.innerHTML = '<span style="color:#8395a7; font-size:12px;">해당 난이도에 등록된 랭커가 없습니다!</span>';
+    return;
+  }
+
+  mainLeaderboardListEl.innerHTML = data.map((row, idx) => {
+    const rankClass = idx === 0 ? 'top1' : idx === 1 ? 'top2' : idx === 2 ? 'top3' : '';
+    const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}위`;
+    return `
+      <div class="lb-row ${rankClass}">
+        <span>${medal} ${row.nickname} <span style="font-size:11px; opacity:0.75;">[${row.difficulty}]</span></span>
+        <span style="font-weight:900;">${row.score.toLocaleString()}P</span>
+      </div>
+    `;
+  }).join('');
+}
+
+// 🎛️ 모달 탭 클릭 리스너 바인딩
+document.querySelectorAll('#modal-tab-group .lb-tab').forEach(tabBtn => {
+  tabBtn.addEventListener('click', () => {
+    document.querySelectorAll('#modal-tab-group .lb-tab').forEach(b => b.classList.remove('active'));
+    tabBtn.classList.add('active');
+    currentModalTab = tabBtn.dataset.tab;
+    loadMainLeaderboard(currentModalTab);
+    Sound.keyPress();
+  });
+});
+
+// 🎛️ 게임오버 탭 클릭 리스너 바인딩
+document.querySelectorAll('#gameover-tab-group .lb-tab').forEach(tabBtn => {
+  tabBtn.addEventListener('click', () => {
+    document.querySelectorAll('#gameover-tab-group .lb-tab').forEach(b => b.classList.remove('active'));
+    tabBtn.classList.add('active');
+    currentGameOverTab = tabBtn.dataset.tab;
+    loadLeaderboard(currentGameOverTab);
+    Sound.keyPress();
+  });
+});
+
+async function submitScore() {
+  if (!rankingMsg || !nicknameInput || !submitScoreBtn) return;
+
+  if (!supabaseClient || SUPABASE_CONFIG.URL.includes('여기에')) {
+    rankingMsg.textContent = 'script.js에 수파베이스 키를 먼저 넣어주세요!';
+    rankingMsg.style.color = '#ff9f43';
+    return;
+  }
+
+  const nickname = nicknameInput.value.trim();
+  if (!nickname) {
+    rankingMsg.textContent = '닉네임을 입력해 주세요!';
+    rankingMsg.style.color = '#ff4757';
+    return;
+  }
+
+  submitScoreBtn.disabled = true;
+  rankingMsg.textContent = '점수 등록 중...';
+  rankingMsg.style.color = '#79f7ff';
+
+  try {
+    const { error } = await supabaseClient
+      .from('leaderboard')
+      .insert([
+        {
+          nickname: nickname,
+          score: score,
+          difficulty: activeDiff.name
+        }
+      ]);
+
+    if (error) throw error;
+
+    rankingMsg.textContent = '🎉 랭킹 등록 완료!';
+    rankingMsg.style.color = '#2ed573';
+    nicknameInput.value = '';
+    loadLeaderboard(currentGameOverTab);
+  } catch (err) {
+    console.error("Insert error:", err);
+    rankingMsg.textContent = '등록 실패 (SQL 권한 확인)';
+    rankingMsg.style.color = '#ff4757';
+    submitScoreBtn.disabled = false;
+  }
+}
+
+if (submitScoreBtn) submitScoreBtn.addEventListener('click', submitScore);
+
+// 메인 랭킹 팝업 열기/닫기
+if (mainRankBtn && rankModal) {
+  mainRankBtn.addEventListener('click', () => {
+    rankModal.style.display = 'flex';
+    loadMainLeaderboard(currentModalTab);
+    Sound.keyPress();
+  });
+}
+if (closeRankBtn && rankModal) {
+  closeRankBtn.addEventListener('click', () => {
+    rankModal.style.display = 'none';
+    Sound.keyPress();
+  });
+}
+
+/* ==========================================================================
+   🏁 게임 라이프사이클
    ========================================================================== */
 function startGame() {
   if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -964,11 +1166,14 @@ function startGame() {
   lastSpawnedTier = 0;
   lastOverclockMilestone = 0;
 
-  diffBadgeEl.textContent = activeDiff.badge;
-  diffBadgeEl.style.color = activeDiff.badgeColor;
+  if (diffBadgeEl) {
+    diffBadgeEl.textContent = activeDiff.badge;
+    diffBadgeEl.style.color = activeDiff.badgeColor;
+  }
 
-  startScreen.style.display = 'none';
-  gameOverScreen.style.display = 'none';
+  if (startScreen) startScreen.style.display = 'none';
+  if (gameOverScreen) gameOverScreen.style.display = 'none';
+  if (rankModal) rankModal.style.display = 'none';
 
   isPlaying = true;
   lastFrameTime = performance.now();
@@ -985,25 +1190,40 @@ function startGame() {
 function gameOver() {
   isPlaying = false;
   clearTimeout(spawnTimer);
-  finalScoreEl.textContent = score;
-  gameOverDiffEl.textContent = activeDiff.badge;
-  gameOverDiffEl.style.color = activeDiff.badgeColor;
-  gameOverScreen.style.display = 'flex';
+  if (finalScoreEl) finalScoreEl.textContent = score.toLocaleString();
+  if (gameOverDiffEl) {
+    gameOverDiffEl.textContent = activeDiff.badge;
+    gameOverDiffEl.style.color = activeDiff.badgeColor;
+  }
+
+  if (submitScoreBtn) submitScoreBtn.disabled = false;
+  if (rankingMsg) rankingMsg.textContent = '';
+
+  // 게임오버 시 내가 플레이했던 난이도 탭을 기본 활성화!
+  currentGameOverTab = activeDiff.name;
+  document.querySelectorAll('#gameover-tab-group .lb-tab').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === currentGameOverTab);
+  });
+  loadLeaderboard(currentGameOverTab);
+
+  if (gameOverScreen) gameOverScreen.style.display = 'flex';
 }
 
-startBtn.addEventListener('click', startGame);
+if (startBtn) startBtn.addEventListener('click', startGame);
 
-// 💡 [TRY AGAIN 클릭 시] 난이도 세팅 유지한 채 메인 화면으로 복귀!
-restartBtn.addEventListener('click', () => {
-  gameOverScreen.style.display = 'none';
-  startScreen.style.display = 'flex';
+if (restartBtn) {
+  restartBtn.addEventListener('click', () => {
+    if (gameOverScreen) gameOverScreen.style.display = 'none';
+    if (startScreen) startScreen.style.display = 'flex';
 
-  // 현재 선택된 난이도 상태 유지 및 설명 갱신
-  activeDiff = DIFFICULTIES[selectedDifficulty];
-  diffDescEl.textContent = activeDiff.desc;
-  diffBadgeEl.textContent = activeDiff.badge;
-  diffBadgeEl.style.color = activeDiff.badgeColor;
-  renderRecipeBook();
-});
+    activeDiff = DIFFICULTIES[selectedDifficulty];
+    if (diffDescEl) diffDescEl.textContent = activeDiff.desc;
+    if (diffBadgeEl) {
+      diffBadgeEl.textContent = activeDiff.badge;
+      diffBadgeEl.style.color = activeDiff.badgeColor;
+    }
+    renderRecipeBook();
+  });
+}
 
 renderRecipeBook();
